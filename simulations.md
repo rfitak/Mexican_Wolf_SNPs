@@ -93,7 +93,26 @@ Description of parameters used:
 - -F ascertainment.txt 1 :: simple text file containing "0.05 0". This means to exlude SNPs with MAF < 0.05
 
 ## Step 2: Parse the simulation output
-This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by [Wigginton et al. (2005, doi:10.1086/429864)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1199378/).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs int he observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.
+This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by [Wigginton et al. (2005, doi:10.1086/429864)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1199378/).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs in the observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.
 ```
-# code
+# # Get genotypes and position files
+   sed -n '6p' chr${chr}_${i}.macs | \
+      tr " " "\n" | \
+      sed '1d' > chr${chr}_${i}.pos
+   tail -n +7 chr${chr}_${i}.macs | \
+      sed 's/\(.\)/\1 /g' | \
+      sed "s/ $//g" > chr${chr}_${i}.geno
+
+# Process data in R
+   Rscript \
+      process-macs.R \
+      chr${chr}_${i}.geno \
+      chr${chr}_${i}.pos \
+      $chr \
+      $len \
+      $nsnps \
+      $i
+   rm -rf chr${chr}_${i}.geno chr${chr}_${i}.pos chr${chr}_${i}.macs
+      echo "Finished chromosome $chr iteration $i"
+
 ```
