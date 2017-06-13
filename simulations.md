@@ -29,24 +29,56 @@ In this step we will simulate SNP data for the 38 chromosomes in the canid genom
 All population sizes are scaled relative to Ne=10000.  
 All times are scales to 4Ne generations, with a generation tme of 3 years (Fan et al. 2016).  
 The mutation rate is set to 1x10^-8 changes/site/generation (Fan et al. 2016).  
+The simulation program MACS was used, and includes both the executables *macs* and *msformatter*.  
 ```
-   /wrk/rfitak/LAIT/macs/macs 2042 $len \
-      -i 1 \
-      -t 0.0004 \
-      -r $rec \
-      -I 4 176 460 138 1268 0 \
-      -n 1 0.06 \
-      -n 2 0.35 \
-      -n 3 0.46 \
-      -n 4 0.205 \
-      -ej 0.045 1 2 \
-      -en 0.045025 2 1.73 \
-      -ej 0.0975 3 4 \
-      -en 0.097525 4 0.8 \
-      -ej 0.104167 2 4 \
-      -en 0.104175 4 4.51 \
-      -F ascertainment.txt 1 \
-      2> errors | \
-      /wrk/rfitak/LAIT/macs/msformatter > chr${chr}_${i}.macs
-  
+# Make a folder of simulations
+mkdir SIMS
+cd SIMS
+
+# Start a loop for each chromosome
+for c in {1..38}; do
+
+   # Make a folder for the chromosome
+   mkdir CHR${c}
+   cd CHR${c}
+
+   # Get the length and recombination rate for each chromsome (scale recombination rate by 4*Ne)
+   len=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f1)
+   rec=$(sed -n "$chr"p ../chromosomes.txt | cut -d" " -f3)
+   rec=$(awk "BEGIN {print "${rec}"*40000}")
+   
+   # Start a loop for each replicate simulation
+   for i in {1..50}; do
+   
+      # Run the simulations
+      macs 2042 $len \
+         -i 1 \
+         -t 0.0004 \
+         -r $rec \
+         -I 4 176 460 138 1268 0 \
+         -n 1 0.06 \
+         -n 2 0.35 \
+         -n 3 0.46 \
+         -n 4 0.205 \
+         -ej 0.045 1 2 \
+         -en 0.045025 2 1.73 \
+         -ej 0.0975 3 4 \
+         -en 0.097525 4 0.8 \
+         -ej 0.104167 2 4 \
+         -en 0.104175 4 4.51 \
+         -F ascertainment.txt 1 \
+         2> errors | \
+         msformatter > chr${c}_${i}.macs
+         
+         # Clean up unused output files to save disk space
+         rm -rf errors haplo* tree*
+         
+   # Close loop of replicates
+   done
+   
+   # Move up a folder
+   cd ..
+   
+# Close loop of chromosomes
+done
 ```
