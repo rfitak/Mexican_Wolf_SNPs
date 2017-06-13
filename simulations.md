@@ -82,3 +82,18 @@ for c in {1..38}; do
 # Close loop of chromosomes
 done
 ```
+Description of parameters used:
+- -i 1 :: the number fo replicates
+- -t 0.0004 :: theta, 4*Ne*u
+- -r $rec :: recombination rate
+- -I 4 176 460 138 1268 0 :: <# populations> <chromosomes per population> <migration rate>
+- -n 1 0.06 :: population size, <pop ID> <scaled size>
+- -ej 0.045 1 2:: at time 0.045 (scaled generations), merge populations 1 and 2
+- -en 0.045025 2 1.73 :: at time 0.045025 (scaled generations), change the Ne of population 2 to 1.73 (scaled by Ne=10000)
+- -F ascertainment.txt 1 :: simple text file containing "0.05 0". This means to exlude SNPs with MAF < 0.05
+
+## Step 2: Parse the simulation output
+This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by Wigginton et al. (20xxx).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs int he observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.
+```
+# code
+```
