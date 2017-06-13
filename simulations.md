@@ -276,3 +276,48 @@ tped = cbind(rep(as.numeric(args[3]),
    t(data.hwe.thin))
 write.table(tped, file = paste0("chr", as.numeric(args[3]), "_", as.numeric(args[6]), ".tped"), quote = F, row.names = F, col.names = F, sep = " ")
 ```
+At the completion of this step, there should be 50 tped files in a folder for each chromosome.  Each tped file is a different replicate.
+
+## Step 3: Prepare input files for LAMP-LD
+This section now parses the tped files to produce files that can be read by [LAIT](http://www.pitt.edu/~wec47/lait.html) and thus converted to the input files for use by LAMP-LD.
+```
+# Make sure to be in the SIMS folder
+cd SIMS
+
+# Start a loop for each chromosome
+for c in {1..38}; do
+   
+   # Move into the chromosome folder
+   cd CHR${c}
+
+   # Loop through each replicate
+   for i in {1..50}; do
+   
+      # Get the MW genotypes in tped format
+      cut -f1-180 -d" " chr${c}_${i}.tped > MW_${i}.tped
+      
+      # Transpose the genoype matrix
+      transpose --fsep " " -t --limit 10000x10000 chr${c}_${i}.tped | tail -n +5 | sed "s/ //g" > tmp
+      
+      # Get the gray wolf (GW) and DOG haplotypes
+      head -774 tmp | tail -n 598 > chr${c}_${i}_gw.hap
+      tail -n 1268 tmp > chr${c}_${i}_dog.hap
+      
+      # Get the map file (first 4 columns of tped format) and list of SNPs
+      cut -f1-4 -d" " chr${c}_${i}.tped > chr${c}_${i}.map
+      cut -f2 -d" " chr${c}_${i}.tped > chr${c}_${i}.snps
+      
+      # Remove unneeded files
+      rm -rf tmp
+      
+   # End the replicate loop
+   done
+   
+   # Move up a folder
+   cd ..
+
+# Close the loop for each chromosome
+done
+```
+
+
