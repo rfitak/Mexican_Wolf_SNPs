@@ -5,9 +5,22 @@ Caption: Demographic model inferred using G-PhoCS. Estimates of divergence times
 
 After limiting this to just the four groups of interest, the tree looks like this:  
 ((MW),(NA_GW)),((EU_GW),(DOGS))  
-MW = Mexican wolves  
-NA_GW = North American gray wolves  
-EU_GW = European gray wolves  
-DOGS = domestic dogs  
+- MW = Mexican wolves  
+- NA_GW = North American gray wolves  
+- EU_GW = European gray wolves  
+- DOGS = domestic dogs
 
+The divergence times are thus (years before present with confidence intervals):
+- MW vs NA_GW = 5400 (4000 - 6600)
+- EU_GW vs DOGS: 11700 (11100 - 12300)
+- (MW + NA_GW) vs (EU_GW + DOGS): 12500
+
+And ancestral population sizes are (mean and confidence interval):
+- Ancestral: 45,100 (44,900 - 45,900)
+- MW + NA_GW: 17,300 (13,000 - 21,700)
+- MW: 600 (400-700)
+- NA_GW: 3,500 (2,600 - 4,300)
+- EU_GW + DOG: 8,000 (3,400 - 16,100)
+- EU_GW: 3,900 - 5,300
+- DOG: 1,400 - 2,700
 
