@@ -24,3 +24,26 @@ And ancestral population sizes are (mean and confidence interval):
 - EU_GW: 3,900 - 5,300
 - DOG: 1,400 - 2,700
 
+## Step 1:  Simulate SNP data using MACS
+In this step we will simulate SNP data for the 38 chromosomes in the canid genome and 50 replicates.  We will sample 176 MW, 460 NA_GW, 138 EU_GW, and 1268 DOGS chromosomes for the final output.  These sample sizes match exactly those reported in our study.  The lengths of each chromosome were retrieved from the [dog genome browser at NCBI](https://www.ncbi.nlm.nih.gov/genome?term=canis%20lupus%20familiaris).  The recombination rates for each chromosome were from the dog linkage map reported in [Wong et al. (2010, doi:10.1534/genetics.109.106831)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2828735/).
+```
+   /wrk/rfitak/LAIT/macs/macs 2042 $len \
+      -i 1 \
+      -t 0.0004 \
+      -r $rec \
+      -I 4 176 460 138 1268 0 \
+      -n 1 0.06 \
+      -n 2 0.35 \
+      -n 3 0.46 \
+      -n 4 0.205 \
+      -ej 0.045 1 2 \
+      -en 0.045025 2 1.73 \
+      -ej 0.0975 3 4 \
+      -en 0.097525 4 0.8 \
+      -ej 0.104167 2 4 \
+      -en 0.104175 4 4.51 \
+      -F ascertainment.txt 1 \
+      2> errors | \
+      /wrk/rfitak/LAIT/macs/msformatter > chr${chr}_${i}.macs
+  
+```
