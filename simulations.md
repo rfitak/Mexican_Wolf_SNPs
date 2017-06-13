@@ -307,7 +307,7 @@ for c in {1..38}; do
          --tfile MW_${i} \
          --recode \
          --out MW_${i}
-      rm -rf MW_${i}.nosex MW_${i}.log MW_${i}.tfam MW_${i}.map
+      rm -rf MW_${i}.nosex MW_${i}.log MW_${i}.tfam MW_${i}.tped MW_${i}.map
       
       # Transpose the genoype matrix
       transpose --fsep " " -t --limit 10000x10000 chr${c}_${i}.tped | tail -n +5 | sed "s/ //g" > tmp
