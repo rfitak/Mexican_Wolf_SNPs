@@ -319,5 +319,22 @@ for c in {1..38}; do
 # Close the loop for each chromosome
 done
 ```
+The program 'transpose' is a new coreutil for Unix that needs to be installed.  It can be installed like so:
+```
+# Download transpose
+wget https://sourceforge.net/projects/transpose/files/transpose/transpose-2.0/2.0/transpose-2.0.zip
+
+# Unpack and build it
+unzip transpose-2.0.zip
+cd transpose-2.0/src
+gcc transpose.c -o transpose
+
+# Move into a folder in the PATH
+mv transpose /wrk/rfitak/SOFTWARE/EXECUTABLES/
+
+# Remove folder
+cd ../..
+rm -rf transpose*
+```
 
 
