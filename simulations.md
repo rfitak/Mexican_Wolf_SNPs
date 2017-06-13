@@ -296,15 +296,18 @@ for c in {1..38}; do
       # Get the MW genotypes in tped format
       cut -f1-180 -d" " chr${c}_${i}.tped > MW_${i}.tped
       
+      # Make a general tfam file
+      for z in {1..88}; do echo "MW $z 0 0 0 0" >> MW_${i}.tfam; done
+      
       # Convert MW tped into ped format and remove unneeded files
       plink \
          --noweb \
          --nonfounders \
          --dog \
          --tfile MW_${i} \
-         --make-bed \
+         --recode \
          --out MW_${i}
-      rm -rf MW_${i}.nosex MW_${i}.log
+      rm -rf MW_${i}.nosex MW_${i}.log MW_${i}.tfam MW_${i}.map
       
       # Transpose the genoype matrix
       transpose --fsep " " -t --limit 10000x10000 chr${c}_${i}.tped | tail -n +5 | sed "s/ //g" > tmp
@@ -321,7 +324,15 @@ for c in {1..38}; do
       rm -rf tmp
       
       # Run lait.pl to build files for LAMP-LD
-      lait.pl lampld 2 chr${c}_${i}.map MW_${i}.tped chr${c}_${i}.snps chr${c}_${i}_gw.hap chr${c}_${i}_dog.hap LAMPLD
+      mkdir LAMPLD_${i}
+      lait.pl \
+         lampld 2 \
+         chr${c}_${i}.map \
+         MW_${i}.ped \
+         chr${c}_${i}.snps \
+         chr${c}_${i}_gw.hap \
+         chr${c}_${i}_dog.hap \
+         LAMPLD_${i}
       
    # End the replicate loop
    done
