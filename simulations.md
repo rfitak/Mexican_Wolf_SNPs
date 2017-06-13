@@ -93,26 +93,54 @@ Description of parameters used:
 - -F ascertainment.txt 1 :: simple text file containing "0.05 0". This means to exlude SNPs with MAF < 0.05
 
 ## Step 2: Parse the simulation output
-This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by [Wigginton et al. (2005, doi:10.1086/429864)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1199378/).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs in the observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.
+This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by [Wigginton et al. (2005, doi:10.1086/429864)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1199378/).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs in the observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.  The chromosome lengths are retrieved as described above, as well as the desired number of SNPs (second column of "chromosomes.txt" file).
 ```
-# # Get genotypes and position files
-   sed -n '6p' chr${chr}_${i}.macs | \
-      tr " " "\n" | \
-      sed '1d' > chr${chr}_${i}.pos
-   tail -n +7 chr${chr}_${i}.macs | \
-      sed 's/\(.\)/\1 /g' | \
-      sed "s/ $//g" > chr${chr}_${i}.geno
+# Make sure to be in the SIMS folder
+cd SIMS
 
-# Process data in R
-   Rscript \
-      process-macs.R \
-      chr${chr}_${i}.geno \
-      chr${chr}_${i}.pos \
-      $chr \
-      $len \
-      $nsnps \
-      $i
-   rm -rf chr${chr}_${i}.geno chr${chr}_${i}.pos chr${chr}_${i}.macs
-      echo "Finished chromosome $chr iteration $i"
+# Start a loop for each chromosome
+for c in {1..38}; do
+   
+   # Move into the chromosome folder
+   cd CHR${c}
+
+   # Get the length for each chromsome and the number of SNPs needed
+   len=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f1)
+   nsnps=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f2)
+   
+   # Start a loop for each of the 50 replicates
+   for i in {1..50}; do
+   
+      # Make a list of every SNP position
+      sed -n '6p' chr${c}_${i}.macs | \
+         tr " " "\n" | \
+         sed '1d' > chr${c}_${i}.pos
+     
+      # Convert into a genotype matrix
+      tail -n +7 chr${c}_${i}.macs | \
+         sed 's/\(.\)/\1 /g' | \
+         sed "s/ $//g" > chr${c}_${i}.geno
+        
+      # Remove SNPs out of HWE (p<0.001), thin, reformat to tped
+      Rscript \
+         process-macs.R \
+         chr${c}_${i}.geno \
+         chr${c}_${i}.pos \
+         $c \
+         $len \
+         $nsnps \
+         $i
+     
+      # Remove all the unnecessary files to save disk space
+      rm -rf chr${c}_${i}.geno chr${c}_${i}.pos chr${c}_${i}.macs
+
+   # Close loop of replicates
+   done
+   
+   # Move up a folder
+   cd ..
+   
+# Close loop of chromosomes
+done
 
 ```
