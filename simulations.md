@@ -296,6 +296,16 @@ for c in {1..38}; do
       # Get the MW genotypes in tped format
       cut -f1-180 -d" " chr${c}_${i}.tped > MW_${i}.tped
       
+      # Convert MW tped into ped format and remove unneeded files
+      plink \
+         --noweb \
+         --nonfounders \
+         --dog \
+         --tfile MW_${i} \
+         --make-bed \
+         --out MW_${i}
+      rm -rf MW_${i}.nosex MW_${i}.log
+      
       # Transpose the genoype matrix
       transpose --fsep " " -t --limit 10000x10000 chr${c}_${i}.tped | tail -n +5 | sed "s/ //g" > tmp
       
@@ -309,6 +319,9 @@ for c in {1..38}; do
       
       # Remove unneeded files
       rm -rf tmp
+      
+      # Run lait.pl to build files for LAMP-LD
+      lait.pl lampld 2 chr${c}_${i}.map MW_${i}.tped chr${c}_${i}.snps chr${c}_${i}_gw.hap chr${c}_${i}_dog.hap LAMPLD
       
    # End the replicate loop
    done
@@ -337,4 +350,23 @@ cd ../..
 rm -rf transpose*
 ```
 
+## Step 4: Run LAMPLD
+```
+lait.pl lampld 2 chr${i}.map chr${i}_mw.unphased.ped chr${i}.snps chr${i}_gw.hap chr${i}_dog.hap LAMPLD
+cd LAMPLD
+   $bin/unolanc2way \
+      100 \
+      50 \
+      chr.pos \
+      pop1.hap \
+      pop2.hap \
+      genofile.gen \
+      chr${i}_lampld.out
+   $bin/convertLAMPLDout.pl chr${i}_lampld.out chr${i}_lampld.converted.out
+   $bin/standardizeOutput.pl lampld 2 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
+   $bin/averageAncestry.pl phased 2 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt  
+```
+
+
+## Step 5: Visualize the Output
 
