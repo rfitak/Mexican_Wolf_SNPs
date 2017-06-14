@@ -363,21 +363,45 @@ rm -rf transpose*
 
 ## Step 4: Run LAMPLD
 ```
-lait.pl lampld 2 chr${i}.map chr${i}_mw.unphased.ped chr${i}.snps chr${i}_gw.hap chr${i}_dog.hap LAMPLD
-cd LAMPLD
-   $bin/unolanc2way \
-      100 \
-      50 \
-      chr.pos \
-      pop1.hap \
-      pop2.hap \
-      genofile.gen \
-      chr${i}_lampld.out
-   $bin/convertLAMPLDout.pl chr${i}_lampld.out chr${i}_lampld.converted.out
-   $bin/standardizeOutput.pl lampld 2 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
-   $bin/averageAncestry.pl phased 2 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt  
-```
+# Path to program files
+bin=/wrk/rfitak/LAIT/bin
 
+# Start from SIMS folder
+cd SIMS
+
+# Start a loop for each chromosome
+for c in {1..38}; do
+   
+   # Move into the chromosome folder
+   cd CHR${c}
+
+   # Loop through each replicate
+   for i in {1..50}; do
+      cd LAMPLD_${i}
+      $bin/unolanc2way \
+         100 \
+         50 \
+         chr.pos \
+         pop1.hap \
+         pop2.hap \
+         genofile.gen \
+         chr${i}_lampld.out
+      $bin/convertLAMPLDout.pl chr${i}_lampld.out chr${i}_lampld.converted.out
+      $bin/standardizeOutput.pl lampld 2 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
+      $bin/averageAncestry.pl phased 2 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt  
+   
+      # Move up a folder
+      cd ..
+   
+   # Close replicate loop
+   done
+
+   # Move up a folder
+   cd ..
+
+# Close the loop for each chromosome
+done
+ ```
 
 ## Step 5: Visualize the Output
 
