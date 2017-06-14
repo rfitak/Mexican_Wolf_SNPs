@@ -133,6 +133,10 @@ for c in {1..38}; do
      
       # Remove all the unnecessary files to save disk space
       rm -rf chr${c}_${i}.geno chr${c}_${i}.pos chr${c}_${i}.macs
+      
+      # Change all alleles: 1=A, 2=G
+      cut -f5- chr${c}_${i}.tped | sed -e "s/1/A/g" -e "s/2/G/g" | paste -d" " <(cut -d" " -f1-4 chr${c}_${i}.tped) - > chr${c}_${i}.tped2
+      mv -f chr${c}_${i}.tped2 chr${c}_${i}.tped
 
    # Close loop of replicates
    done
