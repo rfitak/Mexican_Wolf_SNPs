@@ -4,7 +4,7 @@ This code is for running and visualizing the various results using LAMP-LD v1.0.
 - Mexican wolves as the hybrid population, then dogs and only European gray wolves as the parental populations
 - North American gray wolves as the hybrid population, then dogs and only European gray wolves as the parental populations
 
-## Code to run LAMP-LD with North American gray wolves as the hybrid population and dogs and European wolves as the parental populations
+## Part III: Code to run LAMP-LD with North American gray wolves as the hybrid population and dogs and European wolves as the parental populations
 The requirements to run this script are:
 - the phased output from BEAGLE for all samples (chr\#_phased.txt)
 - a master SNP file (SNP-master.tsv), which essentially is a PLINK-formatted .bim file
