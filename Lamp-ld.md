@@ -12,8 +12,8 @@ The requirements to run this script are:
 - A PLINK-formatted bed/bim/fam file of the total SNP data (MERGED.clean.{bed|bim|fam})
 - A PLINK-formatted fam file of just the individuals to keep in the North American gray wolf (NA_gw) populations
 - The scripts available in the [LAIT](http://www.pitt.edu/~wec47/lait.html) package
+- PLINK v1.07
 - LAMP-LD v1.0
-
 ```bash
 # Move into folder of interest
 cd /wrk/rfitak/LAIT/NA_WOLF
