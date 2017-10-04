@@ -49,7 +49,8 @@ As for migration, we employed a total of 12 possible scenarios.  These migration
 
 The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
-Below is the simulation code for just the first migration scheme (see row 1 above):
+Below is the simulation code for just the first migration scheme (see row 1 above).  The files [chromosomes.txt](./Data/chromosomes.txt), [ascertainment.txt](./Data/ascertainment.txt) are available in the [Data](./Data) folder, and the script [process-macs.R](./Scripts/process-macs.R) is available in the [Scripts](./Scripts) folder.
+
 ```bash
 # Make a folder of simulations
 mkdir SIMS
