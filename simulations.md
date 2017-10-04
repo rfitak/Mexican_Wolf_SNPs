@@ -32,7 +32,7 @@ The mutation rate is set to 1x10^-8 changes/site/generation (Fan et al. 2016).
 The simulation program [MACS](https://github.com/gchen98/macs) was used, and includes both the executables *macs* and *msformatter*.
 As for migration, we employed a total of 12 possible scenarios.  These migration schemes varied in the migration rate (m) from domestic dogs into mexican wolves, when migration occurred (t), and for how long (ngen).  See the table below:
 | m | t | ngen |
-| -- | ---- | -- |
+| --- | --- | --- |
 | 0.05 | 2 | 1 |
 | 0.05 | 20 | 1 |
 | 0.05 | 200 | 1 |
