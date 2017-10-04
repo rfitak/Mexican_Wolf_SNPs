@@ -446,7 +446,7 @@ Next we must identify the different segments, or ancestry "tracts" and put them 
 
 The code below makes a bed file, `out.bed` for a set of simulations above.  The code for just one of the migration schemes is shown.  There are 38 chromosomes, 10 replicates, and 88 individuals per replicate.  Therefore, in total there are 880 individual Mexican wolves per migration scheme.
 ```bash
-# Make sure you are again the correct folder
+# Make sure you are again in the correct folder
 cd SIMS
 
 # Make bed file
