@@ -11,7 +11,7 @@ After limiting this to just the four groups of interest, the tree looks like thi
 - DOGS = domestic dogs
 
 The divergence times are thus (years before present with confidence intervals):
-- MW vs NA_GW = 5400 (4000 - 6600)
+- MW vs NA_GW: 5400 (4000 - 6600)
 - EU_GW vs DOGS: 11700 (11100 - 12300)
 - (MW + NA_GW) vs (EU_GW + DOGS): 12500
 
@@ -25,11 +25,35 @@ And ancestral population sizes are (mean and confidence interval):
 - DOG: 1,400 - 2,700
 
 ## Step 1:  Simulate SNP data using MACS
-In this step we will simulate SNP data for the 38 chromosomes in the canid genome and 50 replicates.  We will sample 176 MW, 460 NA_GW, 138 EU_GW, and 1268 DOGS chromosomes for the final output.  These sample sizes match exactly those reported in our study.  The lengths of each chromosome were retrieved from the [dog genome browser at NCBI](https://www.ncbi.nlm.nih.gov/genome?term=canis%20lupus%20familiaris).  The recombination rates for each chromosome were from the dog linkage map reported in [Wong et al. (2010, doi:10.1534/genetics.109.106831)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2828735/).  Both the lengths and recombination rates for each chromosome are listed in the "chromosomes.txt" file as columns 1 and 3, respectively, inside the data folder.  
+In this step we will simulate SNP data for Mexican wolves with various levels of migration. For each of the 38 autosomes, we will sample 176 MW, 460 NA_GW, 138 EU_GW, and 1268 DOGS chromosomes for the final output.  These sample sizes match exactly those reported in our study.  The lengths of each chromosome were retrieved from the [dog genome browser at NCBI](https://www.ncbi.nlm.nih.gov/genome?term=canis%20lupus%20familiaris).  The recombination rates for each chromosome were from the dog linkage map reported in [Wong et al. (2010, doi:10.1534/genetics.109.106831)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2828735/).  Both the lengths and recombination rates for each chromosome are listed in the "chromosomes.txt" file as columns 1 and 3, respectively, inside the data folder.  
 All population sizes are scaled relative to Ne=10000.  
 All times are scales to 4Ne generations, with a generation tme of 3 years (Fan et al. 2016).  
 The mutation rate is set to 1x10^-8 changes/site/generation (Fan et al. 2016).  
-The simulation program MACS was used, and includes both the executables *macs* and *msformatter*.  
+The simulation program [MACS](https://github.com/gchen98/macs) was used, and includes both the executables *macs* and *msformatter*.
+As for migration, we employed a total of 12 possible scenarios.  These migration schemes varied in the migration rate (m) from domestic dogs into mexican wolves, when migration occurred (t), and for how long (ngen).  See the table below:
+| m | t | ngen |
+| -- | ---- | -- |
+| 0.05 | 2 | 1 |
+| 0.05 | 20 | 1 |
+| 0.05 | 200 | 1 |
+| 0.05 | 2 | 5 |
+| 0.05 | 20 | 5 |
+| 0.05 | 200 | 5 |
+| 0.15 | 2 | 1 |
+| 0.15 | 20 | 1 |
+| 0.15 | 200 | 1 |
+| 0.15 | 2 | 5 |
+| 0.15 | 20 | 5 |
+| 0.15 | 200 | 5 |
+
+
+
+
+
+
+
+
+
 ```
 # Make a folder of simulations
 mkdir SIMS
