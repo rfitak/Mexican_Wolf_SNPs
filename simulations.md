@@ -485,23 +485,42 @@ done
 Here we will load all the bed files into R and calculate various statistics and make plots of the ancestry tracts.
 All analyses will be done in R.
 ```R
-# Load bed file
-bed = read.table("out.bed", sep = "\t", header = F, colClasses = c("numeric", "numeric", "numeric", "character", "character"))
+# Make list of 12 migration schemes
+files = paste0("MIG_", c(1:12), "/out.bed")
 
-# Now, we only want fragments that have dog ancestry (01 or 11)
-bed.dog = subset(bed, V5 == "01" | V5 == "11")
+# Setup empty data object
+data = vector()
 
-# Now, we double any fragment that is 11, since this means both chromosomes are dog
-bed.dog = rbind(bed.dog, subset(bed, V5 == "11"))
+# Generate file for all 12 schemes
+for (i in 1:12){
+   
+   # Load bed file
+   bed = read.table(files[i], sep = "\t", header = F, colClasses = c("numeric", "numeric", "numeric", "character", "character"))
 
-# Calculate the fragments lengths in megabases
-frags = (bed.dog$V3 - bed.dog$V2) / 1000000
-bed.dog = cbind(bed.dog, frags)
+   # Now, we only want fragments that have dog ancestry (01 or 11)
+   bed.dog = subset(bed, V5 == "01" | V5 == "11")
 
-# Get the mean fragment length and # of fragments for each individual
-len = aggregate(bed.dog$frags, list(bed.dog$V4), mean)
-num = aggregate(bed.dog$frags, list(bed.dog$V4), length)
-data = cbind(len, num$x)
-colnames(data) = c("Ind", "mean_size_MB", "Number_dog_frags")
+   # Now, we double any fragment that is 11, since this means both chromosomes are dog
+   bed.dog = rbind(bed.dog, subset(bed, V5 == "11"))
+
+   # Calculate the fragments lengths in megabases
+   frags = (bed.dog$V3 - bed.dog$V2) / 1000000
+   bed.dog = cbind(bed.dog, frags)
+
+   # Get the mean fragment length and # of fragments for each individual
+   len = aggregate(bed.dog$frags, list(bed.dog$V4), mean)
+   num = aggregate(bed.dog$frags, list(bed.dog$V4), length)
+   tmp = cbind(len, num$x, rep(i, nrow(len)))
+   data = rbind(data, tmp)
+}
+
+# Rename columns
+colnames(data) = c("Ind", "mean_size_MB", "Number_dog_frags", "Scheme")
+data = data.frame(data)
+data$Scheme = as.factor(data$Scheme)
+
+# Plot
+library(ggplot2)
+ggplot(data, aes(Scheme, mean_size_MB)) + geom_boxplot()
 ```
 
