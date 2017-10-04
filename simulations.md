@@ -49,17 +49,16 @@ As for migration, we employed a total of 12 possible scenarios.  These migration
 
 The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
-
-
-
-
-
-
-
-```
+Below is the simulation code for just the first migration scheme (see row 1 above):
+```bash
 # Make a folder of simulations
 mkdir SIMS
 cd SIMS
+
+# Copy over some needed files
+cp ../ascertainment.txt .
+cp ../process-macs.R .
+cp ../chromosomes.txt .
 
 # Start a loop for each chromosome
 for c in {1..38}; do
@@ -67,6 +66,10 @@ for c in {1..38}; do
    # Make a folder for the chromosome
    mkdir CHR${c}
    cd CHR${c}
+   
+   # Copy over files again
+   cp ../ascertainment.txt .
+   cp ../process-macs.R .
 
    # Get the length and recombination rate for each chromsome (scale recombination rate by 4*Ne)
    len=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f1)
@@ -74,7 +77,7 @@ for c in {1..38}; do
    rec=$(awk "BEGIN {print "${rec}"*40000}")
    
    # Start a loop for each replicate simulation
-   for i in {1..50}; do
+   for i in {1..10}; do
    
       # Run the simulations
       macs 2042 $len \
@@ -86,6 +89,8 @@ for c in {1..38}; do
          -n 2 0.35 \
          -n 3 0.46 \
          -n 4 0.205 \
+         -em 0.00005 1 4 2000 \
+         -em 0.000075 1 4 0 \
          -ej 0.045 1 2 \
          -en 0.045025 2 1.73 \
          -ej 0.0975 3 4 \
@@ -134,8 +139,8 @@ for c in {1..38}; do
    len=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f1)
    nsnps=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f2)
    
-   # Start a loop for each of the 50 replicates
-   for i in {1..50}; do
+   # Start a loop for each of the 10 replicates
+   for i in {1..10}; do
    
       # Make a list of every SNP position
       sed -n '6p' chr${c}_${i}.macs | \
@@ -321,7 +326,7 @@ for c in {1..38}; do
    cd CHR${c}
 
    # Loop through each replicate
-   for i in {1..50}; do
+   for i in {1..10}; do
    
       # Get the MW genotypes in tped format
       cut -f1-180 -d" " chr${c}_${i}.tped > MW_${i}.tped
@@ -406,7 +411,7 @@ for c in {1..38}; do
    cd CHR${c}
 
    # Loop through each replicate
-   for i in {1..50}; do
+   for i in {1..10}; do
       cd LAMPLD_${i}
       $bin/unolanc2way \
          100 \
@@ -415,10 +420,10 @@ for c in {1..38}; do
          pop1.hap \
          pop2.hap \
          genofile.gen \
-         chr${i}_lampld.out
-      $bin/convertLAMPLDout.pl chr${i}_lampld.out chr${i}_lampld.converted.out
-      $bin/standardizeOutput.pl lampld 2 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
-      $bin/averageAncestry.pl phased 2 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt  
+         chr${c}_lampld.out
+      $bin/convertLAMPLDout.pl chr${c}_lampld.out chr${c}_lampld.converted.out
+      $bin/standardizeOutput.pl lampld 2 chr${c}_lampld.converted.out chr${c}_ancestry.standardized.txt
+      $bin/averageAncestry.pl phased 2 chr${c}_ancestry.standardized.txt chr${c}_avg.ancestry.txt  
    
       # Move up a folder
       cd ..
