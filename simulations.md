@@ -31,21 +31,22 @@ All times are scales to 4Ne generations, with a generation tme of 3 years (Fan e
 The mutation rate is set to 1x10^-8 changes/site/generation (Fan et al. 2016).  
 The simulation program [MACS](https://github.com/gchen98/macs) was used, and includes both the executables *macs* and *msformatter*.
 As for migration, we employed a total of 12 possible scenarios.  These migration schemes varied in the migration rate (m) from domestic dogs into mexican wolves, when migration occurred (t), and for how long (ngen).  See the table below:
-| m | t | ngen |
-| --- | --- | --- |
-| 0.05 | 2 | 1 |
-| 0.05 | 20 | 1 |
-| 0.05 | 200 | 1 |
-| 0.05 | 2 | 5 |
-| 0.05 | 20 | 5 |
-| 0.05 | 200 | 5 |
-| 0.15 | 2 | 1 |
-| 0.15 | 20 | 1 |
-| 0.15 | 200 | 1 |
-| 0.15 | 2 | 5 |
-| 0.15 | 20 | 5 |
-| 0.15 | 200 | 5 |
 
+| m | t | ngen | MACS1 | MACS2 |
+| --- | --- | --- | --- | --- |
+| 0.05 | 2 | 1 | -em 0.00005 1 4 2000 | -em 0.000075 1 4 0 |
+| 0.05 | 20 | 1 | -em 0.0005 1 4 2000 | -em 0.000525 1 4 0 |
+| 0.05 | 200 | 1 | -em 0.005 1 4 2000 | -em 0.005025 1 4 0 |
+| 0.05 | 2 | 5 | -em 0.00005 1 4 2000 | -em 0.000175 1 4 0 |
+| 0.05 | 20 | 5 | -em 0.0005 1 4 2000 | -em 0.000625 1 4 0 |
+| 0.05 | 200 | 5 | -em 0.005 1 4 2000 | -em 0.005125 1 4 0 |
+| 0.15 | 2 | 1 | -em 0.00005 1 4 6000 | -em 0.000075 1 4 0 |
+| 0.15 | 20 | 1 | -em 0.0005 1 4 6000 | -em 0.000525 1 4 0 |
+| 0.15 | 200 | 1 | -em 0.005 1 4 6000 | -em 0.005025 1 4 0 |
+| 0.15 | 2 | 5 | -em 0.00005 1 4 6000 | -em 0.000175 1 4 0 |
+| 0.15 | 20 | 5 | -em 0.0005 1 4 6000 | -em 0.000625 1 4 0 |
+| 0.15 | 200 | 5 | -em 0.005 1 4 6000 | -em 0.005125 1 4 0 |
+The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
 
 
