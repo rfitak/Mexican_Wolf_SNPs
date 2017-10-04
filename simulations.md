@@ -481,9 +481,27 @@ do
 done
 ```
 
+## Step 6: Visualize the Output
+Here we will load all the bed files into R and calculate various statistics and make plots of the ancestry tracts.
+All analyses will be done in R.
+```R
+# Load bed file
+bed = read.table("out.bed", sep = "\t", header = F, colClasses = c("numeric", "numeric", "numeric", "character", "character"))
 
+# Now, we only want fragments that have dog ancestry (01 or 11)
+bed.dog = subset(bed, V5 == "01" | V5 == "11")
 
+# Now, we double any fragment that is 11, since this means both chromosomes are dog
+bed.dog = rbind(bed.dog, subset(bed, V5 == "11"))
 
+# Calculate the fragments lengths in megabases
+frags = (bed.dog$V3 - bed.dog$V2) / 1000000
+bed.dog = cbind(bed.dog, frags)
 
-## Step 5: Visualize the Output
+# Get the mean fragment length and # of fragments for each individual
+len = aggregate(bed.dog$frags, list(bed.dog$V4), mean)
+num = aggregate(bed.dog$frags, list(bed.dog$V4), length)
+data = cbind(len, num$x)
+colnames(data) = c("Ind", "mean_size_MB", "Number_dog_frags")
+```
 
