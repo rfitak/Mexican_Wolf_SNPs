@@ -46,6 +46,7 @@ As for migration, we employed a total of 12 possible scenarios.  These migration
 | 0.15 | 2 | 5 | -em 0.00005 1 4 6000 | -em 0.000175 1 4 0 |
 | 0.15 | 20 | 5 | -em 0.0005 1 4 6000 | -em 0.000625 1 4 0 |
 | 0.15 | 200 | 5 | -em 0.005 1 4 6000 | -em 0.005125 1 4 0 |
+
 The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
 
