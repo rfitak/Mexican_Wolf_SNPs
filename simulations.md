@@ -125,7 +125,7 @@ Description of parameters used:
 
 ## Step 2: Parse the simulation output
 This step reformats the output haplotypes (chromosomes) into a genotype matrix.  Then, an R script is used to remove any SNP deviating from Hard-Weinberg equilibrium (p < 0.001) following the method by [Wigginton et al. (2005, doi:10.1086/429864)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1199378/).  Afterwards, the SNP genotypes are thinned to correspond with the number of SNPs in the observed dataset (see the file "chromosomes.txt" inthe "Data" folder).  Finally, the genotype matrix is converted to the PLINK 'tped' format.  The chromosome lengths are retrieved as described above, as well as the desired number of SNPs (second column of "chromosomes.txt" file).
-```
+```bash
 # Make sure to be in the SIMS folder
 cd SIMS
 
@@ -179,7 +179,7 @@ for c in {1..38}; do
 done
 ```
 Below is the R script "process-macs.R".  It is also available in the "Data" folder of this github repository.  The R package "data.table" is required.
-```
+```R
 # Make sure to be in R.  I used version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
 # Process in R
 # args = genofile, posfile, chr_number, chr_length, nsnps, iteration
@@ -311,11 +311,11 @@ tped = cbind(rep(as.numeric(args[3]),
    t(data.hwe.thin))
 write.table(tped, file = paste0("chr", as.numeric(args[3]), "_", as.numeric(args[6]), ".tped"), quote = F, row.names = F, col.names = F, sep = " ")
 ```
-At the completion of this step, there should be 50 tped files in a folder for each chromosome.  Each tped file is a different replicate.
+At the completion of this step, there should be 10 tped files in a folder for each chromosome.  Each tped file is a different replicate.
 
 ## Step 3: Prepare input files for LAMP-LD
 This section now parses the tped files to produce files that can be read by [LAIT](http://www.pitt.edu/~wec47/lait.html) and thus converted to the input files for use by LAMP-LD.
-```
+```bash
 # Make sure to be in the SIMS folder
 cd SIMS
 
@@ -379,7 +379,7 @@ for c in {1..38}; do
 done
 ```
 The program 'transpose' is a new coreutil for Unix that needs to be installed.  It can be installed like so:
-```
+```bash
 # Download transpose
 wget https://sourceforge.net/projects/transpose/files/transpose/transpose-2.0/2.0/transpose-2.0.zip
 
@@ -397,7 +397,7 @@ rm -rf transpose*
 ```
 
 ## Step 4: Run LAMPLD
-```
+```bash
 # Path to program files
 bin=/wrk/rfitak/LAIT/bin
 
