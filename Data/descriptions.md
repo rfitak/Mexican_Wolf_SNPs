@@ -20,3 +20,6 @@ It requires the following arguments after "Rscript process-macs.R":
 - chromosome length
 - number of SNPs desired
 - the iteration number
+
+## [sims.sh](./sims.sh)
+This file is a SLURM array batch job script for the simulations for the first migration scheme.
