@@ -441,7 +441,7 @@ done
 
 Wow!  That is quite a set of code for the simulations!  To streamline the process, it has all been concatenated into a single job script for SLURM.  The job runs as an array for each chromosome (separate job for each chromosome).  A separate script was submitted for each migration scheme, and the script for the first scheme, [sims.sh](./Data/sims.sh), is available in the [Data](./Data) folder.
 
-## Step 4: Convert the LAM-LD output to bed format
+## Step 4: Convert the LAMP-LD output to bed format
 Next we must identify the different segments, or ancestry "tracts" and put them in a bed format.  The bed format is basically a tab-delimited text file, where the first three columns are "chromosome", "start position", and "end position".  The remaining columns can contain any other information and are not generally processed.
 
 The code below makes a bed file, `out.bed` for a set of simulations above.  The code for just one of the migration schemes is shown.  There are 38 chromosomes, 10 replicates, and 88 individuals per replicate.  Therefore, in total there are 880 individual Mexican wolves per migration scheme.
