@@ -49,7 +49,7 @@ As for migration, we employed a total of 12 possible scenarios.  These migration
 
 The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
-Below is the simulation code for just the first migration scheme (see row 1 above).  The files [chromosomes.txt](./Data/chromosomes.txt), [ascertainment.txt](./Data/ascertainment.txt) are available in the [Data](./Data) folder, and the script [process-macs.R](./Scripts/process-macs.R) is available in the [Scripts](./Scripts) folder.
+Below is the simulation code for just the first migration scheme (see row 1 above).  The files [chromosomes.txt](./Data/chromosomes.txt), [ascertainment.txt](./Data/ascertainment.txt) and the script [process-macs.R](./Data/process-macs.R) is available in the [Data](./Data) folder.
 
 ```bash
 # Make a folder of simulations
@@ -179,7 +179,7 @@ for c in {1..38}; do
 # Close loop of chromosomes
 done
 ```
-Below is the R script "process-macs.R".  It is also available in the "Data" folder of this github repository.  The R package "data.table" is required.
+Below is the R script "process-macs.R".  It is also available in the [Data](./Data) folder of this github repository.  The R package "data.table" is required.
 ```R
 # Make sure to be in R.  I used version 3.3.2 (2016-10-31) -- "Sincere Pumpkin Patch"
 # Process in R
@@ -438,6 +438,9 @@ for c in {1..38}; do
 # Close the loop for each chromosome
 done
  ```
+
+Wow!  That is quite a set of code for the simulations!  To streamline the process, it has all been concatenated into a single job script for SLURM.  The job runs as an array for each chromosome (separate job for each chromosome).  A separate script was submitted for each migration scheme, and the script for the first scheme, [sims.sh](./Data/sims.sh), is available in the [Data](./Data) folder.
+
 
 ## Step 5: Visualize the Output
 
