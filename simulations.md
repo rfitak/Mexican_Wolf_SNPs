@@ -519,8 +519,53 @@ colnames(data) = c("Ind", "mean_size_MB", "Number_dog_frags", "Scheme")
 data = data.frame(data)
 data$Scheme = as.factor(data$Scheme)
 
-# Plot
+# Repeat for the observed set of Mexican wolves
+   MW.data = read.table("MW.out.bed", sep="\t", header=F, colClasses = c(rep("numeric",3), rep("character", 2)))
+   # Now, we only want fragments that have dog ancestry (01 or 11)
+   MW.dog = subset(MW.data, V5 == "01" | V5 == "11")
+
+   # Now, we double any fragment that is 11, since this means both chromosomes are dog
+   MW.dog = rbind(MW.dog, subset(MW.data, V5 == "11"))
+
+   # Calculate the fragments lengths in megabases
+   frags = (MW.dog$V3 - MW.dog$V2) / 1000000
+   MW.dog = cbind(MW.dog, frags)
+
+   # Get the mean fragment length and # of fragments for each individual
+   len = aggregate(MW.dog$frags, list(MW.dog$V4), mean)
+   num = aggregate(MW.dog$frags, list(MW.dog$V4), length)
+   tmp = cbind(len, num$x, rep("MW", nrow(len)))
+   colnames(tmp) = c("Ind", "mean_size_MB", "Number_dog_frags", "Scheme")
+   data = rbind(data, tmp)
+
+   # Reformat data frame
+   data = data.frame(data)
+   data$Scheme = as.factor(data$Scheme)
+
+# Load a cool R package to plot polygons around clusters of points
+library(devtools)
+devtools::install_github("cmartin/ggConvexHull")
+
+# Load libraries for plotting
 library(ggplot2)
-ggplot(data, aes(Scheme, mean_size_MB)) + geom_boxplot()
+library(ggConvexHull)
+
+# Make list of colors to use (12 colors + black from RColorBrewer)
+colors = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
+   '#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928','#000000')
+   
+# Make scatterplot
+p = ggplot(data, aes(x=Number_dog_frags, y=mean_size_MB, col=Scheme))
+p = p + geom_point(size=0.5)
+p = p + geom_convexhull(alpha = 0.5, aes(fill=Scheme))
+p = p + scale_fill_manual(values=colors)
+p = p + scale_colour_manual(values=colors)
+p = p + xlab("Number of Fragments")
+p = p + ylab("Mean Fragment Length (MB)")
+p = p + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
+p
+
+# Make boxplots
+ggplot(data, aes(Scheme, mean_size_MB, col=Scheme)) + geom_boxplot() + scale_fill_manual(values=colors)
 ```
 
