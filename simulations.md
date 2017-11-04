@@ -566,6 +566,20 @@ p = p + theme(axis.text = element_text(size = 12), axis.title = element_text(siz
 p
 
 # Make boxplots
-ggplot(data, aes(Scheme, mean_size_MB, col=Scheme)) + geom_boxplot() + scale_fill_manual(values=colors)
+bp = ggplot(data, aes(Scheme, mean_size_MB, fill=Scheme))
+bp = bp + geom_boxplot()
+bp = bp + scale_fill_manual(values=colors)
+bp = bp + xlab("Scheme")
+bp = bp + ylab("Mean Fragment Length (MB)")
+bp = bp + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
+bp
+
+bp2 = ggplot(data, aes(Scheme, Number_dog_frags, fill=Scheme))
+bp2 = bp2 + geom_boxplot()
+bp2 = bp2 + scale_fill_manual(values=colors)
+bp2 = bp2 + xlab("Scheme")
+bp2 = bp2 + ylab("Number of Fragments")
+bp2 = bp2 + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
+bp2
 ```
 
