@@ -74,7 +74,7 @@ for c in {1..38}; do
 
    # Get the length and recombination rate for each chromsome (scale recombination rate by 4*Ne)
    len=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f1)
-   rec=$(sed -n "$chr"p ../chromosomes.txt | cut -d" " -f3)
+   rec=$(sed -n "$c"p ../chromosomes.txt | cut -d" " -f3)
    rec=$(awk "BEGIN {print "${rec}"*40000}")
    
    # Start a loop for each replicate simulation
