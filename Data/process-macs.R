@@ -102,17 +102,30 @@ HWE.Wigginton = function(x){
    return(p)
 }
 
-hwe = apply(data, 2, HWE.Wigginton)
+# Remove SNPs with MAF<0.05 in dogs to mimic ascertainment bias
+data.dog = data[775:2042,]
+freq = colSums(data.dog) / nrow(data.dog)
+keep.MAF = which(freq > 0.05 & freq < 0.95)
+print(paste0("A total of ",
+   ncol(data) - length(keep.MAF),
+   " SNPs were removed (MAF < 0.05 in dogs) and ",
+   length(keep.MAF),
+   " remain."))
+data.MAF = data[, keep.MAF, with = FALSE]
+pos.MAF = pos[keep.MAF]
+
+# Remove SNPs with HWE < 0.001
+hwe = apply(data.MAF, 2, HWE.Wigginton)
 keep = which(hwe > 0.001)
 print(paste0("A total of ",
-   ncol(data) - length(keep),
+   ncol(data.MAF) - length(keep),
    " SNPs were removed (HWE p-value < 0.001) and ",
    length(keep),
    " remain."))
 
 # Make new datatable
-data.hwe = data[, keep, with = FALSE]
-pos.hwe = paste0("chr", as.numeric(args[3]), "_", round(as.numeric(args[4]) * pos[keep]))
+data.hwe = data.MAF[, keep, with = FALSE]
+pos.hwe = paste0("chr", as.numeric(args[3]), "_", round(as.numeric(args[4]) * pos.MAF[keep]))
 
 # Thin to the given number of snps
 thin = seq(1, length(pos.hwe), round(length(pos.hwe) / as.numeric(args[5])))
