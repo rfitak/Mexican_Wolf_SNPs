@@ -30,10 +30,11 @@ All population sizes are scaled relative to Ne=10000.
 All times are scales to 4Ne generations, with a generation tme of 3 years (Fan et al. 2016).  
 The mutation rate is set to 1x10^-8 changes/site/generation (Fan et al. 2016).  
 The simulation program [MACS](https://github.com/gchen98/macs) was used, and includes both the executables *macs* and *msformatter*.
-As for migration, we employed a total of 12 possible scenarios.  These migration schemes varied in the migration rate (m) from domestic dogs into mexican wolves, when migration occurred (t), and for how long (ngen).  See the table below:
+As for migration, we employed a total of 13 possible scenarios.  These migration schemes varied in the migration rate (m) from domestic dogs into mexican wolves, when migration occurred (t), and for how long (ngen).  See the table below:
 
 | m | t | ngen | MACS1 | MACS2 |
 | --- | --- | --- | --- | --- |
+| 0 | n/a | n/a | n/a | n/a |
 | 0.05 | 2 | 1 | -em 0.00005 1 4 2000 | -em 0.000075 1 4 0 |
 | 0.05 | 20 | 1 | -em 0.0005 1 4 2000 | -em 0.000525 1 4 0 |
 | 0.05 | 200 | 1 | -em 0.005 1 4 2000 | -em 0.005025 1 4 0 |
@@ -49,7 +50,7 @@ As for migration, we employed a total of 12 possible scenarios.  These migration
 
 The last two columns are the MACS parameters to set the migration rate (m \* 4 \* No) at time t (t/4\*No) and to remove the migration after ngen (t+ngen/4\*No)
 
-Below is the simulation code for just the first migration scheme (see row 1 above).  The files [chromosomes.txt](./Data/chromosomes.txt), [ascertainment.txt](./Data/ascertainment.txt) and the script [process-macs.R](./Data/process-macs.R) is available in the [Data](./Data) folder.
+Below is the simulation code for just the first migration scheme (see row 2 above).  The files [chromosomes.txt](./Data/chromosomes.txt), [ascertainment.txt](./Data/ascertainment.txt) and the script [process-macs.R](./Data/process-macs.R) is available in the [Data](./Data) folder.
 
 ```bash
 # Make a folder of simulations
@@ -498,14 +499,14 @@ done
 Here we will load all the bed files into R and calculate various statistics and make plots of the ancestry tracts.
 All analyses will be done in R.
 ```R
-# Make list of 12 migration schemes
-files = paste0("MIG_", c(1:12), "/out.bed")
+# Make list of 13 migration schemes
+files = paste0("MIG_", c(0:12), "/out.bed")
 
 # Setup empty data object
 data = vector()
 
 # Generate file for all 12 schemes
-for (i in 1:12){
+for (i in 1:length(files)){
    
    # Load bed file
    bed = read.table(files[i], sep = "\t", header = F, colClasses = c("numeric", "numeric", "numeric", "character", "character"))
@@ -563,9 +564,11 @@ devtools::install_github("cmartin/ggConvexHull")
 library(ggplot2)
 library(ggConvexHull)
 
-# Make list of colors to use (12 colors + black from RColorBrewer)
-colors = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
+# Make list of colors to use (13 colors + black from RColorBrewer)
+colors = c('red', '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
    '#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928','#000000')
+   # use if only gray color
+   # colors=c(rep("#737373",13),"black")
    
 # Make scatterplot
 p = ggplot(data, aes(x=Number_dog_frags, y=mean_size_MB, col=Scheme))
