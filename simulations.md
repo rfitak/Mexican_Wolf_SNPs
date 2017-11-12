@@ -557,20 +557,7 @@ data$Scheme = as.factor(data$Scheme)
    data$Scheme = as.factor(data$Scheme)
    
    # Write to output file
-   write.table(data, file = "Sims-summary.tsv", quote = F, row.names = F, col.names = T)
-   
-   # Get Q per individual
-   data.simQ = list()
-   for (i in 0:12){
-      tmp = subset(data, Scheme == i)
-      tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
-      data.simQ[[i+1]] = tmp2[order(tmp2$Group.1),2]
-      names(data.simQ)[i+1] = paste0("Scheme",i)
-   }
-   tmp = subset(data, Scheme == "MW")
-   tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
-   data.simQ[[14]] = tmp2[order(tmp2$Group.1),2]
-   names(data.simQ)[14] = "MW"
+   write.table(data, file = "Sims-summary.tsv", quote = F, row.names = F, col.names = T)   
 
 # Load a cool R package to plot polygons around clusters of points
 library(devtools)
@@ -613,5 +600,36 @@ bp2 = bp2 + xlab("Scheme")
 bp2 = bp2 + ylab("Number of Fragments")
 bp2 = bp2 + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
 bp2
+
+# Get Q per individual
+data.simQ = list()
+for (i in 0:12){
+   tmp = subset(data, Scheme == i)
+   tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
+   data.simQ[[i+1]] = tmp2[order(tmp2$Group.1),2]
+   names(data.simQ)[i+1] = paste0("Scheme",i)
+}
+tmp = subset(data, Scheme == "MW")
+tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
+data.simQ[[14]] = tmp2[order(tmp2$Group.1),2]
+names(data.simQ)[14] = "MW"
+   
+# Save R object
+save(data.simQ, file = "Sim.Q.R")
+
+# Make Q boxplot
+colors = c('red', '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
+   '#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928','#000000')
+library(reshape2)
+data.Q = melt(data.simQ)
+colnames(data.Q) = c("Q", "Scheme")
+
+bp3 = ggplot(data.Q, aes(Scheme, Q, fill=Scheme))
+bp3 = bp3 + geom_boxplot()
+bp3 = bp3 + scale_fill_manual(values=colors)
+bp3 = bp3 + xlab("Scheme")
+bp3 = bp3 + ylab("Proportion Dog Ancestry")
+bp3 = bp3 + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
+bp3
 ```
 
