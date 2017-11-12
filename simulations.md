@@ -555,6 +555,9 @@ data$Scheme = as.factor(data$Scheme)
    # Reformat data frame
    data = data.frame(data)
    data$Scheme = as.factor(data$Scheme)
+   
+   # Write to output file
+   write.table(data, file = "Sims-summary.tsv", quote = F, row.names = F, col.names = T)
 
 # Load a cool R package to plot polygons around clusters of points
 library(devtools)
