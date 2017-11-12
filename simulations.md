@@ -558,6 +558,19 @@ data$Scheme = as.factor(data$Scheme)
    
    # Write to output file
    write.table(data, file = "Sims-summary.tsv", quote = F, row.names = F, col.names = T)
+   
+   # Get Q per individual
+   data.simQ = list()
+   for (i in 0:12){
+      tmp = subset(data, Scheme == i)
+      tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
+      data.simQ[[i+1]] = tmp2[order(tmp2$Group.1),2]
+      names(data.simQ)[i+1] = paste0("Scheme",i)
+   }
+   tmp = subset(data, Scheme == "MW")
+   tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
+   data.simQ[[14]] = tmp2[order(tmp2$Group.1),2]
+   names(data.simQ)[14] = "MW"
 
 # Load a cool R package to plot polygons around clusters of points
 library(devtools)
