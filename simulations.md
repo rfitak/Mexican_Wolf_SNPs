@@ -505,7 +505,7 @@ files = paste0("MIG_", c(0:12), "/out.bed")
 # Setup empty data object
 data = vector()
 
-# Generate file for all 12 schemes
+# Generate file for all 13 schemes
 for (i in 1:length(files)){
    
    # Load bed file
@@ -524,7 +524,7 @@ for (i in 1:length(files)){
    # Get the mean fragment length and # of fragments for each individual
    len = aggregate(bed.dog$frags, list(bed.dog$V4), mean)
    num = aggregate(bed.dog$frags, list(bed.dog$V4), length)
-   tmp = cbind(len, num$x, rep(i, nrow(len)))
+   tmp = cbind(len, num$x, rep(i-1, nrow(len)))
    data = rbind(data, tmp)
 }
 
