@@ -607,7 +607,7 @@ for (i in 0:12){
    tmp = subset(data, Scheme == i)
    tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
    data.simQ[[i+1]] = tmp2[order(tmp2$Group.1),2]
-   names(data.simQ)[i+1] = paste0("Scheme",i)
+   names(data.simQ)[i+1] = i
 }
 tmp = subset(data, Scheme == "MW")
 tmp2 = aggregate((tmp$mean_size_MB * tmp$Number_dog_frags * 1000000) / (2 * 2315236716), list(tmp$Ind), sum)
@@ -623,9 +623,11 @@ colors = c('red', '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
 library(reshape2)
 data.Q = melt(data.simQ)
 colnames(data.Q) = c("Q", "Scheme")
+data.Q$Scheme = factor(data.Q$Scheme, levels = c("MW", as.character(0:12)))
 
 bp3 = ggplot(data.Q, aes(Scheme, Q, fill=Scheme))
-bp3 = bp3 + geom_boxplot()
+bp3 = bp3 + geom_jitter(shape=20, position=position_jitter(0.2), alpha = 0.25)
+bp3 = bp3 + geom_boxplot(outlier.shape = NA, alpha = 0.7)
 bp3 = bp3 + scale_fill_manual(values=colors)
 bp3 = bp3 + xlab("Scheme")
 bp3 = bp3 + ylab("Proportion Dog Ancestry")
