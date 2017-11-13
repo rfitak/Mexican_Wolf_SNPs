@@ -571,7 +571,7 @@ library(ggConvexHull)
 colors = c('red', '#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
    '#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928','#000000')
    # use if only gray color
-   # colors=c(rep("#737373",13),"black")
+   # colors=c(rep("#969696",13),"black")
    
 # Make scatterplot
 p = ggplot(data, aes(x=Number_dog_frags, y=mean_size_MB, col=Scheme))
@@ -581,7 +581,7 @@ p = p + scale_fill_manual(values=colors)
 p = p + scale_colour_manual(values=colors)
 p = p + xlab("Number of Fragments")
 p = p + ylab("Mean Fragment Length (MB)")
-p = p + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14))
+p = p + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14), legend.position="none")
 p
 
 # Make boxplots
