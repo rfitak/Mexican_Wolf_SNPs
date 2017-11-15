@@ -1,6 +1,6 @@
 # Downloading and preparing the input data from other studies to merge with the Mexican wolf genotypes
 
-## Download LUPA dataset
+## Download and prepare LUPA dataset
 The LUPA datasets can be found here ([LUPA data](http://dogs.genouest.org/SWEEP.dir/Supplemental.html)) and are associated with the publication by [Vaysse et al. 2011 PLoS Genetics](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1002316).  This publication also describes the development of the [CanineHD beadchip](https://www.illumina.com/products/by-type/microarray-kits/caninehd.html) from Illumina.  The complete LUPA dataset contains 547 individuals (15 gray wolves + 532 domestic dogs from 48 breeds) and 174810 loci.
 ```bash
 # Download LUPA genotype data
@@ -33,7 +33,7 @@ The file `exclude.list` should contain 5744 X and Y SNP IDs.
 
 The LUPA dataset is now ready for downstream processing
 
-## Download and Prepare Stronen genotypes
+## Download and prepare Stronen genotypes
 The Stronen dataset is from [Stronen et al. 2015 Ecology & Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4667828/).  The dataset contains "59 unrelated wolves from four previously identified population clusters (northcentral Europe n = 32, Carpathian Mountains n = 7, Dinaric‐Balkan n = 9, Ukrainian Steppe n = 11).".  The genotype data were made available in Dryad [here](https://dx.doi.org/10.5061/dryad.p6598). Unfortunately, only genotypes from SNPs after quality filtering were made available (137978 SNP loci)
 
 ```bash
@@ -56,11 +56,11 @@ cat Stronen.map | \
 mv tmp Stronen.map
 
 # NOW DON'T FORGET TO CHANGE Y CHROMOSOME FORMATS IN VIM AS MENTIONED ABOVE!!!!
-   # Ony 1 Y chromsome SNP in the dataset
+   # Only 1 Y chromsome SNP in the dataset
 ```
 The Stronen dataset is now ready for downstream processing
 
-## Download and Prepare Cronin genotypes
+## Download and prepare Cronin genotypes
 The Cronin dataset is from [Cronin et al. 2015 Journal of Heredity](https://academic.oup.com/jhered/article/106/1/26/882754). This dataset contains 431 samples, including 35 coyotes, 91 dogs, and 305 gray wolves (including 8 Mexican wolves).  The genotype data are available in Dryad [here](https://doi.org/10.5061/dryad.284tf).  Unfortunately, the authors also did not provide raw data and only provided genotype data for 123801 SNP loci.  Furthermore, they oddly provide the data in a CSV format rather than traditional ped/map format and had to undergo some extra processing.
 
 ```bash
@@ -113,4 +113,72 @@ cat cronin.map | \
    tr " " "\t" > tmp
 mv tmp cronin.map
 ```
+
+The Cronin dataset is now ready for downstream processing
+
+## Download and prepare Alaskan husky genotypes
+The Alaskan husky data is from an association study performed in [Vernau et al. 2013 PLoS One](https://doi.org/10.1371/journal.pone.0057195).  The genotype data were not made publicly available, but upon contacting the corresponding author was sent the genotype data for 28 Alaskan huskies for 172115 SNPs (karen28.tped & karen28.tfam).  The last column of the tfam file is the case-control status, and there were 8 cases (#2) and 20 controls (#1).  Controls were often matched to the cases, including close relatives, so we only retained control individual, then further limited these to the 10 with the lowest genome-wide mean identity by descent (IBD).
+```bash
+# Starting with karen28.tped and karen28.tfam
+
+# First, cleanup windows newline characters to Unix, just in case
+tr "\r" "\n" < karen28.tfam | tr -s "\n" > tmp
+mv tmp karen28.tfam
+tr "\r" "\n" < karen28.tped | tr -s "\n" > tmp
+mv tmp karen28.tped
+
+# Reduce to only "control" individuals
+grep "1$" karen28.tfam | cut -d" " -f1-2 > karen.controls
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --tfile karen28 \
+   --keep karen.controls \
+   --make-bed \
+   --out karen20
+   # Results: 172115 SNPs, call rate 0.987572
+
+# Convert SNP ID format as described above for LUPA data
+   # Note, this is now a BIM file and not a MAP file
+cat karen20.bim | \
+   perl -ne 'chomp; @a=split(/\t/,$_); print "$a[0]\tchr$a[0]_$a[3]\t0\t$a[3]\t$a[4]\t$a[5]\n"' > tmp.bim
+   mv tmp.bim karen20.bim
+
+# NOW DON'T FORGET TO CHANGE Y CHROMOSOME FORMATS IN VIM AS MENTIONED ABOVE!!!!
+   # There were 10 Y chromsome SNPs in this dataset
+```
+
+The Husky dataset is now ready for downstream processing
+
+## Now we will prepare the raw Mexican wolf dataset
+We begin with the MW SNP data after it has been processed in GenomeStudio.  There are 96 individuals and 172114 SNPs.
+
+```bash
+# Make new bim file
+tr "\r" "\n" < MW.bim | \
+   tr -s "\n" | \
+   perl -ne 'chomp; @a=split(/\t/,$_); print "$a[0] chr$a[0]_$a[3] 0 $a[3] $a[4] $a[5]\n"' | \
+   tr " " "\t" | \
+   sed -e "s/X/39/g" -e "s/Y/40/g" > tmp
+mv tmp MW.bim
+
+# NOW DON'T FORGET TO CHANGE Y CHROMOSOME FORMATS IN VIM AS MENTIONED ABOVE!!!!
+   # There were 10 Y chromsome SNPs in this dataset
+```
+
+The MW dataset is now ready for downstream processing
+
+
+## Addtional cleanup: flipping SNPs and removing individuals
+In this section, we will remove individuals from files that need to be excluded and omit SNPs from the X and Y chromosomes.  Also, Illumina sends out different versions of the CanineHD beadchip overtime, occassionally flipping the reference strand for certain SNPs.  This can cause errors when trying to merge files.  Luckily, Illumina outputs the exact strand for each SNP when you open the genotypes into GenomeStudio.  I saved a version of this for the MW data as [SNP\_Table2.txt](./Data/SNP_Table2.txt).  It is a tab delimited file with the columns: Name	SNP	ILMN Strand	Customer Strand.
+
+
+
+
+
+
+
+
+
 
