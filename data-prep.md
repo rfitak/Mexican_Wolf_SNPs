@@ -117,7 +117,8 @@ mv tmp cronin.map
 The Cronin dataset is now ready for downstream processing
 
 ## Download and prepare Alaskan husky genotypes
-The Alaskan husky data is from an association study performed in [Vernau et al. 2013 PLoS One](https://doi.org/10.1371/journal.pone.0057195).  The genotype data were not made publicly available, but upon contacting the corresponding author was sent the genotype data for 28 Alaskan huskies for 172115 SNPs (karen28.tped & karen28.tfam).  The last column of the tfam file is the case-control status, and there were 8 cases (#2) and 20 controls (#1).  Controls were often matched to the cases, including close relatives, so we only retained control individual, then further limited these to the 10 with the lowest genome-wide mean identity by descent (IBD).
+The Alaskan husky data is from an association study performed in [Vernau et al. 2013 PLoS One](https://doi.org/10.1371/journal.pone.0057195).  The genotype data were not made publicly available, but upon contacting the corresponding author was sent the genotype data for 28 Alaskan huskies for 172115 SNPs (karen28.tped & karen28.tfam).  The last column of the tfam file is the case-control status, and there were 8 cases (#2) and 20 controls (#1).  Controls were often matched to the cases, including close relatives, so we only retained control individual, then further limited these to the 10 with the lowest mean identity by descent (IBD) with all other individuals.
+
 ```bash
 # Starting with karen28.tped and karen28.tfam
 
@@ -276,22 +277,14 @@ For the Stronen data, we will initially include all 59 wolves so no further clea
 | NK=226618| 1133 | overlap - checked genotypes, 0.9955988 match rate (73% match between samples) |
 
 ```bash
-
+# Add two Mexcian wolves from the Cronin dataset to a new file
 echo "WO_NewMexico NK108448" >> cronin.matches
 echo "WO_NewMexico NK226618" >> cronin.matches
 
-# Also add coyotes to be removed
+# Also add coyotes to be removed to the same file
 grep "^CO_" cronin.fam | \
    cut -d" " -f1-2 >> cronin.matches
-
 ```
-
-
-
-
-
-
-
 
 For the Husky data, we have to calculate the IBD and keep the 10 most distantly related.  This was done using [PLINK v1.07](http://zzz.bwh.harvard.edu/plink/).
 
@@ -335,15 +328,76 @@ for (i in b){
    ibd = c(ibd, d)
 }
 
-#
-names(ibd[order(ibd)[11:20]])
+# Append 10 huskies with highest mean IBD to the list of individuals to remove
+write(names(ibd[order(ibd)[11:20]]), file = "cronin.matches", append=T)
 ```
 
+### Finally, we are ready to Merge the 5 datasets together!!!!
 
+```bash
+# Make list of files to merge
+echo "cronin.bed cronin.bim cronin.fam" >> files.list
+echo "LUPA.bed LUPA.bim LUPA.fam" >> files.list
+echo "MW.clean.bed MW.clean.bim MW.clean.fam" >> files.list
+echo "karen.bed karen.bim karen.fam" >> files.list
 
+# MERGE THEM!!!
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile Stronen \
+   --merge-list files.list \
+   --remove cronin.matches \
+   --make-bed \
+   --out MERGED
+   # Results: 1094 individuals, 169066 SNPs
+```
 
+### Clean up the Merged data
+This will first remove any SNPs missing at more than 10% of loci, Then, we will remove SNPs with a minimum allele frequency (MAF) < 0.05 and any individuals genotypes at fewer than 90% of loci.
 
+```bash
+# Remove SNPs with low genotyping rate (<90%)
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MERGED \
+   --geno 0.1 \
+   --make-bed \
+   --out MERGED.geno90
+   # Results: 
+   # 49573 SNPs failed missingness test ( GENO > 0.1 )
+   # After frequency and genotyping pruning, there are 119493 SNPs
 
+# Further remove individuals with genotyping rate <90% and SNPs with MAF<0.05
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MERGED.geno90 \
+   --maf 0.05 \
+   --mind 0.1 \
+   --make-bed \
+   --out MERGED.clean
+   # Results: 
+   # 1206 SNPs failed allele freq test ( MAF < 0.05 )
+   # 73 individuals failed missingness test (mind > 0.1)
+   # After frequency and genotyping pruning, there are 118287 SNPs
+   # Total genotyping rate in remaining 1021 individuals is 0.990959
+```
 
+Awesome!  Now we have a file containing our final set of filtered SNPs and individuals across all studies.  Please see the next page (xxxx) for LD pruning, PCA, etc.
 
+The table below summarizes the results:
 
+| Dataset | # SNPs | # Individuals | # Mexican Wolves | # Dogs | # Other Gray Wolves |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| Fitak et al. This study | 172114 | 96 | 95 | 1 | 0 |
+| LUPA - Vaysse et al. 2011 | 174810 | 547 | 0 | 532 | 15 |
+| Cronin et al. 2015 | 123801 | 396 | 8 | 91 | 305 |
+| Stronen et al. 2015 | 137978 | 59 | 0 | 0 | 59 |
+| Vernau et al. 2013 | 172115 | 28 | 0 | 28 | 0 |
+| Merged | 169066 | 1094 | 89 | 634 | 371 |
+| Merged.cleaned | 118287 | 1021 | 88 | 634 | 299 |
