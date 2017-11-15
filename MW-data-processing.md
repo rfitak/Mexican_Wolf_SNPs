@@ -93,10 +93,112 @@ plink \
 	# Using (default) SNP-major mode
 ```
 
+This cleaned dataset is used for the downstream analyses, and contains 62219 SNPs and 84 individuals (83 Mexican wolves + 1 dog genotyping control)
 
-# These individuals had low call rates (<0.90)
-	# WILD	1053
-	# X	836
-	# GR	418
-	# X	1033
+## LD Pruning the dataset
+We next removed SNPs in high linkage disequilibrium (LD).  We used a window size of 1 MB (megabase), and randomly removed 1 SNP from each pair if the r > 0.5.  We did this using the software package [SNPRelate v0.9.18](http://bioconductor.org/packages/release/bioc/html/SNPRelate.html) in R.
+```R
+# Install and setup package
+install.packages("SNPRelate")
+library(SNPRelate)
+
+# Set names to input Plink-formatted files and convert to gds file
+bed.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.bed"
+bim.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.bim"
+fam.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.fam"
+snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "MW.clean.gds")
+
+# Load MW pedigree information
+ped.data = read.table("MW-pedigree-data.csv", header = T, sep = ",")
+rows = c(1:7,9:15,17:30,32:37,39:45,47:61,63:67,69:71,73:79,81,83,85:87,89:92,94:96)
+ped.data = ped.data[rows,]
+colors = c("blue","black","black","black","black","blue","black","black","black","black","blue","blue","black","black","blue","black","black","black","black","blue","black","black","black","blue","blue","blue","black","black","black","blue","blue","black","black","black","blue","black","black","blue","black","black","black","black","blue","blue","blue","blue","black","green","blue","blue","black","blue","blue","blue","green","blue","blue","blue","green","red","green","blue","green","black","black","blue","blue","blue","black","blue","black","blue","black","black","black","black","black","blue","black","red","green","black","blue")
+
+# Open .gds file
+genofile = openfn.gds("MW.clean.gds")
+
+# Get sample IDs
+samp.id <- read.gdsn(index.gdsn(genofile, "sample.id"))
+
+# Samples without hershey (the one domestic dog)
+samp.noHershey = c(samp.id[1:76], samp.id[78:84])
+
+# LD Prune (method=r; ld.threshold=0.5; slide.max.bp=1000000)
+snps2keep = snpgdsLDpruning(genofile, autosome.only = F, method = "r", slide.max.bp = 1000000, verbose = T, ld.threshold = 0.5, sample.id = samp.noHershey)
+
+# Get list of the unlinked (LD-pruned SNPs)
+snps.id = unlist(snps2keep)
+```
+
+After LD pruning, 7,295 SNPs remained.  If repeated, this number does vary slightly due to stochasticity in the analysis.
+
+## Generate a PCA with each wolf plotted as a pie chart, in R
+
+```R
+pca = snpgdsPCA(genofile, autosome.only = FALSE, snp.id = snps.id, sample.id = samp.noHershey)
+pc.percent <- 100 * pca$eigenval[1:32] / sum(pca$eigenval)
+
+# Plot the PCA
+library("Rgraphviz")
+library(plotrix)
+library(RColorBrewer)
+
+colors=c("#3771c8","#d40000","green")
+pdf("MW-PCA.pdf", width = 7, height = 7)
+plot.new()
+plot.window(xlim = c(-0.17, 0.44), ylim = c(-0.12, 0.3))
+axis(1)
+axis(2, las = 2)
+box()
+for (g in 1:nrow(ped.data)){
+   pie = c(ped.data[g,4], ped.data[g,5], ped.data[g,6])
+   if (pie[1] == 1){
+      points(dates[g], ped.data$Ho[g], col = "black", bg = "#3771c8", pch = 21, cex = 2)
+   } else if (pie[2] == 1){
+      points(dates[g], ped.data$Ho[g], col = "black", bg = "#d40000", pch = 21, cex = 2)
+   } else if (pie[3] == 1){
+      points(dates[g], ped.data$Ho[g], col = "black", bg = "green", pch = 21, cex = 2)
+   } else {
+      pie.col = which(pie > 0)
+      pie = pie[pie > 0]
+      pieGlyph(pie, dates[g], ped.data$Ho[g], col = colors[pie.col], edges = 200, radius = 0.007, labels = NA, border = T)
+   }
+}
+title(xlab = "PC 1", ylab = "PC 2")
+dev.off()
+
+# Plot Principle components
+pdf("MW-PCbars.pdf", width = 9, height = 7)
+barplot(pc.percent[1:20], las = 1, ylab = "Percent Variation", xlab = "Principle Component", names.arg = c(1:20), ylim = c(0, 20), axis.lty = 1)
+dev.off()
+
+# Plot pairwise PCA for first 4 components, only save as a pdf if needed later
+lbls <- paste("PC", 1:4, "\n", format(pc.percent[1:4], digits = 2), "%", sep = "")
+pairs(pca$eigenvect[,1:4], col = colors, labels = lbls, pch = 19)
+
+# MDS of pairwise IBS (not used in study)
+ibs <- snpgdsIBS(genofile, num.thread = 1, sample.id = samp.noHershey)
+loc <- cmdscale(1 - ibs$ibs, k = 2)
+x <- loc[, 1]; y <- loc[, 2]
+plot(x, y, col = colors, xlab = "", ylab = "", main = "Multidimensional Scaling Analysis (IBS Distance)", pch = 19)
+
+# Permute clusters
+set.seed(100)
+ibs.hc <- snpgdsHCluster(snpgdsIBS(genofile, num.thread = 2, sample.id = samp.noHershey))
+
+# to determine groups of individuals automatically
+install.packages('dendextend')
+library(dendextend)
+rv <- snpgdsCutTree(ibs.hc, col.list = colors.order)
+colors.order = colors[rv$samp.order] #re-order colors to match the dendrogram
+rv2 = set(rv$dendrogram, "leaves_col", colors.order)
+rv2 = set(rv2, "leaves_cex", 1.25)
+pdf("MW-PC-dendrogram.pdf")
+plot(rv2, leaflab = "none", main = "Canines")
+dev.off()
+
+# Remove individuals with IBD > 0.5
+mibd <- snpgdsIBDMLE(genofile, snp.id = snps.id, num.thread = 2, method = "EM", autosome.only = FALSE)
+pairs = snpgdsIBDSelection(mibd, kinship.cutoff = 0.5)
+```
 
