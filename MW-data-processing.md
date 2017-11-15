@@ -212,4 +212,4 @@ pairs = snpgdsIBDSelection(mibd, kinship.cutoff = 0.5)
 
 The Multidimensional scaling plot (similar to a PCA):
 
-![Images/MW-MDS.png]
+![MDS](./Images/MW-MDS.png)
