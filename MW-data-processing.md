@@ -152,16 +152,16 @@ axis(2, las = 2)
 box()
 for (g in 1:nrow(ped.data)){
    pie = c(ped.data[g,4], ped.data[g,5], ped.data[g,6])
-   if (pie[1] == 1){
-      points(dates[g], ped.data$Ho[g], col = "black", bg = "#3771c8", pch = 21, cex = 2)
+   if (pie[1] == 1){ 
+      points(pca$eigenvect[g,2], pca$eigenvect[g,1], col = "black", bg = "#3771c8", pch = 21, cex = 2)
    } else if (pie[2] == 1){
-      points(dates[g], ped.data$Ho[g], col = "black", bg = "#d40000", pch = 21, cex = 2)
+      points(pca$eigenvect[g,2], pca$eigenvect[g,1], col = "black", bg = "#d40000", pch = 21, cex = 2)
    } else if (pie[3] == 1){
-      points(dates[g], ped.data$Ho[g], col = "black", bg = "green", pch = 21, cex = 2)
+      points(pca$eigenvect[g,2], pca$eigenvect[g,1], col = "black", bg = "green", pch = 21, cex = 2)
    } else {
       pie.col = which(pie > 0)
       pie = pie[pie > 0]
-      pieGlyph(pie, dates[g], ped.data$Ho[g], col = colors[pie.col], edges = 200, radius = 0.007, labels = NA, border = T)
+      pieGlyph(pie, pca$eigenvect[g, 2], pca$eigenvect[g, 1], col = colors[pie.col], edges = 200, radius = 0.007, labels = NA, border = T)
    }
 }
 title(xlab = "PC 1", ylab = "PC 2")
