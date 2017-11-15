@@ -262,8 +262,9 @@ plink \
 rm *.nosex *.nof *.hh
 ```
 
-For the Stronen data, we will initially include all 59 wolves so no further cleanup is needed.  For the Cronin data, we will exclude all coyotes and two Mexican wolves which overlap with our MW dataset.  Here is a summary of the Mexican wolf sampels form the Cronin dataset.  
-|Cronin ID | MW Studbook ID | Overlap Notes |
+For the Stronen data, we will initially include all 59 wolves so no further cleanup is needed.  For the Cronin data, we will exclude all coyotes and two Mexican wolves which overlap with our MW dataset.  Here is a summary of the Mexican wolf sampels form the Cronin dataset.
+
+| Cronin ID | MW Studbook ID | Overlap Notes |
 | :---: | :---: | :---: |
 | NK=108296 | 1033 | overlap # 1033 was already removed for low genotyping in MW |
 | NK=108404 | 1139 | none |
