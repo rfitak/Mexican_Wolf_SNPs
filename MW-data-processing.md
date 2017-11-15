@@ -209,7 +209,19 @@ pairs = snpgdsIBDSelection(mibd, kinship.cutoff = 0.5)
 ```
 
 ### Some of the various plots not presented in the manuscript are found below:
+The plots are colored by:
+McBride wolves = blue
+Aragon wolves = red
+Ghost Ranch wolves = green
+Cross Lineage wolves = black
 
 The Multidimensional scaling plot (similar to a PCA):
-
 ![MDS](./Images/MW-MDS.png)
+
+
+The paired PCA plots:
+![PCA pairs](./Images/MW-PCA-pairs.png)
+
+
+The MW dendrogram
+![dendrogram](./Images/MW-PCA-pairs.png)
