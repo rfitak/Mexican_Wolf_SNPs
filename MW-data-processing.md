@@ -224,4 +224,4 @@ The paired PCA plots:
 
 
 The MW dendrogram
-![dendrogram](./Images/MW-PCA-pairs.png)
+![dendrogram](./Images/MW-dendrogram.png)
