@@ -235,6 +235,108 @@ plink \
     # Results:  166583/172115 SNPs, 20 individuals call rate: 0.987535
 ```
 
+Next, we have to make list of individuals to exclude from the various studies.  For Mexican wolves, we need to exclude the 8 replicated samples with the lowest call rate (see XXXXXX) and the 4 additional samples with call rate below the threshold (90%).  To do this, we compare the list of 96 samples (MW.fam) with the list of 84 samples from the MW-only analysis from earlier (see [here](....)).
+
+```bash
+#  Compare the two sample sets to get a list of samples to exclude
+comm \
+   <(sort MW.fam) \
+   <(sort ../MW-ANALYSES/MW.clean.fam) | \
+   cut -f1 | \
+   grep -v "^$" | \
+   cut -d" " -f1-2 > remove.list
+
+# Generate new MW file that flips some SNPs, excludes XY SNPs, and removes the individuals
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MW \
+   --exclude exclude.list \
+   --flip stronen2flip.txt \
+   --remove remove.list \
+   --make-bed \
+   --out MW.clean
+
+# Remove unnecessary files if desired
+rm *.nosex *.nof *.hh
+```
+
+For the Stronen data, we will initially include all 59 wolves so no further cleanup is needed.  For the cronin data, we will exclude all coyotes and two Mexican wolves which overlap with our MW dataset.  Here is a summary of the Mexican wolf sampels form the Cronin dataset.
+|Cronin ID | MW Studbook ID | Overlap Notes |
+| :---: | :---: | :---: |
+| NK=108296 | 1033 | overlap # 1033 was already removed for low genotyping in MW |
+| NK=108404 | 1139 | none |
+| NK=108445 | 921 | none |
+| NK=108446 | 1043 | none |
+| NK=108448 | 1177 | overlap - checked genotypes, 0.9970188 match rate |
+| NK=226615 | 1052 | none |
+| NK=226616 | 1215 | none |
+| NK=226618| 1133 | overlap - checked genotypes, 0.9955988 match rate (73% match between samples) |
+
+```bash
+
+echo "WO_NewMexico NK108448" >> cronin.matches
+echo "WO_NewMexico NK226618" >> cronin.matches
+
+# Also add coyotes to be removed
+grep "^CO_" cronin.fam | \
+   cut -d" " -f1-2 >> cronin.matches
+
+```
+
+
+
+
+
+
+
+
+For the Husky data, we have to calculate the IBD and keep the 10 most distantly related.  This was done using [PLINK v1.07](http://zzz.bwh.harvard.edu/plink/).
+
+```bash
+# Get IBD for the Husky data
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile karen \
+   --maf 0.05 \
+   --geno 0.1 \
+   --genome \
+   --out karen.IBD
+
+# Get a list of the Husky IDs
+cut -d" " -f2 karen.fam > karen.ind
+
+# Make the file tad-delimited
+tr " " "\t" < karen.IBD.genome | tr -s "\t" > tmp
+mv tmp karen.IBD.genome
+```
+
+now in R
+
+```R
+# Read in data table
+a = read.table("karen.IBD.genome", sep = "\t", header = T)
+
+# Read in individuals
+b = scan("karen.ind", what = "character")
+
+# Setup empty vector to store results
+ibd = vector()
+
+# Loop through each individual to get their mean IDB with each other individual
+for (i in b){
+   c = rbind(subset(a, IID1 == i), subset(a, IID2 == i))
+   d = mean(c$PI_HAT)
+   names(d) = i
+   ibd = c(ibd, d)
+}
+
+#
+names(ibd[order(ibd)[11:20]])
+```
 
 
 
