@@ -130,9 +130,17 @@ snps2keep = snpgdsLDpruning(genofile, autosome.only = F, method = "r", slide.max
 
 # Get list of the unlinked (LD-pruned SNPs)
 snps.id = unlist(snps2keep)
+
+# Save the pruned dataset in plink format
+snpgdsGDS2BED(genofile, bed.fn="MW.clean.pruned", snp.id=snps.id)
 ```
 
-After LD pruning, 7,295 SNPs remained.  If repeated, this number does vary slightly due to stochasticity in the analysis.
+
+After LD pruning, 7,295 SNPs remained.  If repeated, this number does vary slightly due to stochasticity in the analysis. Also, SNPRelate alters the fam file output, so we overwrite it using the old fam file:
+
+```bash
+cp MW.clean.fam MW.clean.pruned.fam
+```
 
 ## Generate a PCA with each wolf plotted as a pie chart, in R
 
@@ -225,3 +233,42 @@ The paired PCA plots:
 
 The MW dendrogram
 ![dendrogram](./Images/MW-PC-dendrogram.png)
+
+
+## Heterozygosity analysis
+Here we calculated heterozygosity for each Mexican wolf in our dataset.
+
+```bash
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MW.clean.pruned \
+   --het \
+   --out MW
+   # output file is MW.het
+
+# Clean up file
+sed "s/^ *//g" MW.het | tr " " "\t" | tr -s "\t" > tmp
+mv tmp MW.het
+```
+
+Unfortunately, the output file just describes the number of observed and expected homozygous loci.  We can calculate actual heterozygosity in R.
+
+```R
+# Load data
+data = read.table("MW.het", header = T, sep = "\t")
+
+# Get heterozygosity
+Het = 1 - (data$O.HOM. / data$N.NM.)
+
+# Read in pedigree data again
+ped.data = read.table("MW-pedigree-data.csv", header = T, sep = ",")
+
+# Get matching birthdates
+
+
+
+```
+Then, we built a simple linear model (regression) to describe the relationship between heterozygosity and birthdate.
+
