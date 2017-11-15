@@ -97,6 +97,7 @@ This cleaned dataset is used for the downstream analyses, and contains 62219 SNP
 
 ## LD Pruning the dataset
 We next removed SNPs in high linkage disequilibrium (LD).  We used a window size of 1 MB (megabase), and randomly removed 1 SNP from each pair if the r > 0.5.  We did this using the software package [SNPRelate v0.9.18](http://bioconductor.org/packages/release/bioc/html/SNPRelate.html) in R.  The file containing the pedigree data and other sample info for each Mexican wolf is [MW-pedigree-data.csv](./Data/MW-pedigree-data.csv).
+
 ```R
 # Install and setup package
 source("https://bioconductor.org/biocLite.R")
@@ -207,3 +208,8 @@ mibd <- snpgdsIBDMLE(genofile, snp.id = snps.id, num.thread = 2, method = "EM", 
 pairs = snpgdsIBDSelection(mibd, kinship.cutoff = 0.5)
 ```
 
+### Some of the various plots not presented in the manuscript are found below:
+
+The Multidimensional scaling plot (similar to a PCA):
+
+![Images/MW-MDS.pdf]
