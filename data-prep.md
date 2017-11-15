@@ -171,7 +171,69 @@ The MW dataset is now ready for downstream processing
 
 
 ## Addtional cleanup: flipping SNPs and removing individuals
-In this section, we will remove individuals from files that need to be excluded and omit SNPs from the X and Y chromosomes.  Also, Illumina sends out different versions of the CanineHD beadchip overtime, occassionally flipping the reference strand for certain SNPs.  This can cause errors when trying to merge files.  Luckily, Illumina outputs the exact strand for each SNP when you open the genotypes into GenomeStudio.  I saved a version of this for the MW data as [SNP\_Table2.txt](./Data/SNP_Table2.txt).  It is a tab delimited file with the columns: Name	SNP	ILMN Strand	Customer Strand.
+In this section, we will remove individuals from files that need to be excluded and omit SNPs from the X and Y chromosomes.  Also, Illumina sends out different versions of the CanineHD beadchip overtime, occassionally flipping the reference strand for certain SNPs.  This can cause errors when trying to merge files.  Luckily, Illumina outputs the exact strand for each SNP when you open the genotypes into GenomeStudio.  I saved a version of this for the MW data as [SNP\_Table2.txt](./Data/SNP_Table2.txt).  It is a tab delimited file with the columns: Name	SNP	ILMN Strand	Customer Strand.  The other genotype files may contain SNPs that need to have their strands flipped in order to match that of the MW dataset.  I found that the studies needed to be flipped if they were on the "bottom" strand.  This was further separated as shown using the code below.
+
+```bash
+# Make list of SNPs to flip that are "bottom" and "bottom"
+grep "BOT.*BOT" SNP_Table2.txt | cut -f1 > stronen2flip.txt
+   # 39323 SNPs
+   
+# Make list of SNPs to flip that are "top" and "bottom"   
+grep "TOP.*BOT" SNP_Table2.txt | cut -f1 > cronin2flip.txt
+   # 47298 SNPs
+```
+
+Now we can flip the strand of SNPs as needed in the genotype files to match the MW strandedness and exclude XY SNPs.  This will also convert each file to the PLINK binary format to save disk space
+
+```bash
+# Process the LUPA data
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --exclude exclude.list \
+   --file LUPA \
+   --flip cronin2flip.txt \
+   --make-bed \
+   --out LUPA
+    # Results: 169066/174810 SNPs, 547 individuals
+
+# Process the Stronen data
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --file Stronen \
+   --exclude exclude.list \
+   --flip stronen2flip.txt \
+   --make-bed \
+   --out Stronen
+    # Results: 134548/137978 SNPs, 59 individuals
+    
+# Process the Cronin data
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --file cronin \
+   --exclude exclude.list \
+   --flip cronin2flip.txt \
+   --make-bed \
+   --out cronin
+    # Results: 120671/123801 SNPs, 431 individuals
+
+# Process the Husky data
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile karen20 \
+   --exclude exclude.list \
+   --flip stronen2flip.txt \
+   --make-bed \
+   --out karen
+    # Results:  166583/172115 SNPs, 20 individuals call rate: 0.987535
+```
 
 
 
