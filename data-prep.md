@@ -60,6 +60,57 @@ mv tmp Stronen.map
 ```
 The Stronen dataset is now ready for downstream processing
 
-## Download and Prepare Stronen genotypes
+## Download and Prepare Cronin genotypes
+The Cronin dataset is from [Cronin et al. 2015 Journal of Heredity](https://academic.oup.com/jhered/article/106/1/26/882754). This dataset contains 431 samples, including 35 coyotes, 91 dogs, and 305 gray wolves (including 8 Mexican wolves).  The genotype data are available in Dryad [here](https://doi.org/10.5061/dryad.284tf).  Unfortunately, the authors also did not provide raw data and only provided genotype data for 123801 SNP loci.  Furthermore, they oddly provide the data in a CSV format rather than traditional ped/map format and had to undergo some extra processing.
 
+```bash
+# Download data
+curl -O http://datadryad.org/bitstream/handle/10255/dryad.73530/data_123801SNP.csv
+
+# Build a space-delimited fam file
+paste -d" " \
+   <(cut -d"," -f2 data_123801SNP.csv) \
+   <(cut -d"," -f1 data_123801SNP.csv) | \
+   sed '1d' | \
+   perl -ne 'chomp; print "$_ 0 0 0 -9\n"' \
+   > cronin.fam
+
+# Format genotypes and combine with fam file to build a ped file
+sed '1d' data_123801SNP.csv | \
+   cut -d"," -f3- | \
+   sed -e 's/,/ /g' -e 's/_/ /g' -e 's/?/0/g' | \
+   paste -d" " <(cat cronin.fam) - > cronin.ped
+rm cronin.fam
+
+# Make a list of the SNP loci
+head -1 data_123801SNP.csv | \
+   tr "," "\n" | \
+   sed '1d' | \
+   sed '1d' | \
+   sed "s/_.*$//g" | \
+   sed "s/f/F/g" > loci
+
+# For each Cronin dataset SNP, find its match in the LUPA data
+c=1
+while read line
+do 
+a=$(grep -m 1 "$line\t" LUPA.map)
+if [ "$a" == "" ]
+   then
+   echo "$line" >> no-matches
+   echo "Finished $c ... no match"
+   else
+   echo "Finished $c"
+   echo "$a" >> cronin.map
+fi
+c=$(( $c + 1 ))
+done < loci
+rm loci
+
+# Convert SNP ID format as described above for LUPA data
+cat cronin.map | \
+   perl -ne 'chomp; @a=split(/\t/,$_); print "$a[0] chr$a[0]_$a[3] 0 $a[3]\n"' | \
+   tr " " "\t" > tmp
+mv tmp cronin.map
+```
 
