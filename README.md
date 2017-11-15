@@ -1,5 +1,6 @@
 # Mexican_Wolf_SNPs
 The repository contains code for the analysis of the Mexican wolf SNP data.  Please follow the links below to get the code and associated descriptions for various analyses and data processing.  The results of this study have been published in Fitak et al. (in review) *Molecular Ecology*
+Some of the ancillary data files and custom scripts are available in the [Data](./Data) folder.
 
 1. Analyzing the initial Mexican wolf genotypes
     - processing the MW genotypes alone, including data cleaning, LD pruning, PCA, admixture, etc
