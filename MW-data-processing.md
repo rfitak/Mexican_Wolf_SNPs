@@ -99,20 +99,21 @@ This cleaned dataset is used for the downstream analyses, and contains 62219 SNP
 We next removed SNPs in high linkage disequilibrium (LD).  We used a window size of 1 MB (megabase), and randomly removed 1 SNP from each pair if the r > 0.5.  We did this using the software package [SNPRelate v0.9.18](http://bioconductor.org/packages/release/bioc/html/SNPRelate.html) in R.  The file containing the pedigree data and other sample info for each Mexican wolf is [MW-pedigree-data.csv](./Data/MW-pedigree-data.csv).
 ```R
 # Install and setup package
-install.packages("SNPRelate")
+source("https://bioconductor.org/biocLite.R")
+biocLite("SNPRelate")
 library(SNPRelate)
 
 # Set names to input Plink-formatted files and convert to gds file
-bed.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.bed"
-bim.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.bim"
-fam.fn = "/Users/rfitak/Desktop/MW-ANALYSES/MW.clean.fam"
+bed.fn = "MW.clean.bed"
+bim.fn = "MW.clean.bim"
+fam.fn = "MW.clean.fam"
 snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "MW.clean.gds")
 
 # Load MW pedigree information
 ped.data = read.table("MW-pedigree-data.csv", header = T, sep = ",")
 rows = c(1:7,9:15,17:30,32:37,39:45,47:61,63:67,69:71,73:79,81,83,85:87,89:92,94:96)
 ped.data = ped.data[rows,]
-colors = c("blue","black","black","black","black","blue","black","black","black","black","blue","blue","black","black","blue","black","black","black","black","blue","black","black","black","blue","blue","blue","black","black","black","blue","blue","black","black","black","blue","black","black","blue","black","black","black","black","blue","blue","blue","blue","black","green","blue","blue","black","blue","blue","blue","green","blue","blue","blue","green","red","green","blue","green","black","black","blue","blue","blue","black","blue","black","blue","black","black","black","black","black","blue","black","red","green","black","blue")
+colors1 = c("blue","black","black","black","black","blue","black","black","black","black","blue","blue","black","black","blue","black","black","black","black","blue","black","black","black","blue","blue","blue","black","black","black","blue","blue","black","black","black","blue","black","black","blue","black","black","black","black","blue","blue","blue","blue","black","green","blue","blue","black","blue","blue","blue","green","blue","blue","blue","green","red","green","blue","green","black","black","blue","blue","blue","black","blue","black","blue","black","black","black","black","black","blue","black","red","green","black","blue")
 
 # Open .gds file
 genofile = openfn.gds("MW.clean.gds")
@@ -136,7 +137,7 @@ After LD pruning, 7,295 SNPs remained.  If repeated, this number does vary sligh
 
 ```R
 pca = snpgdsPCA(genofile, autosome.only = FALSE, snp.id = snps.id, sample.id = samp.noHershey)
-pc.percent <- 100 * pca$eigenval[1:32] / sum(pca$eigenval)
+pc.percent <- 100 * pca$eigenval[1:32] / sum(pca$eigenval, na.rm = T)
 
 # Plot the PCA
 library("Rgraphviz")
@@ -146,12 +147,12 @@ library(RColorBrewer)
 colors=c("#3771c8","#d40000","green")
 pdf("MW-PCA.pdf", width = 7, height = 7)
 plot.new()
-plot.window(xlim = c(-0.17, 0.44), ylim = c(-0.12, 0.3))
+plot.window(xlim = c(-0.45, 0.2), ylim = c(-0.25,0.4))
 axis(1)
 axis(2, las = 2)
 box()
 for (g in 1:nrow(ped.data)){
-   pie = c(ped.data[g,4], ped.data[g,5], ped.data[g,6])
+   pie = c(ped.data[g,39], ped.data[g,40], ped.data[g,41])
    if (pie[1] == 1){ 
       points(pca$eigenvect[g,2], pca$eigenvect[g,1], col = "black", bg = "#3771c8", pch = 21, cex = 2)
    } else if (pie[2] == 1){
@@ -161,7 +162,7 @@ for (g in 1:nrow(ped.data)){
    } else {
       pie.col = which(pie > 0)
       pie = pie[pie > 0]
-      pieGlyph(pie, pca$eigenvect[g, 2], pca$eigenvect[g, 1], col = colors[pie.col], edges = 200, radius = 0.007, labels = NA, border = T)
+      pieGlyph(pie, pca$eigenvect[g, 2], pca$eigenvect[g, 1], col = colors[pie.col], edges = 200, radius = 0.016, labels = NA, border = T)
    }
 }
 title(xlab = "PC 1", ylab = "PC 2")
@@ -174,13 +175,17 @@ dev.off()
 
 # Plot pairwise PCA for first 4 components, only save as a pdf if needed later
 lbls <- paste("PC", 1:4, "\n", format(pc.percent[1:4], digits = 2), "%", sep = "")
-pairs(pca$eigenvect[,1:4], col = colors, labels = lbls, pch = 19)
+pairs(pca$eigenvect[,1:4], col = colors1, labels = lbls, pch = 19)
+dev.copy(pdf, "PCA-pairs.pdf", height=10, width=10)
+dev.off()
 
 # MDS of pairwise IBS (not used in study)
 ibs <- snpgdsIBS(genofile, num.thread = 1, sample.id = samp.noHershey)
 loc <- cmdscale(1 - ibs$ibs, k = 2)
 x <- loc[, 1]; y <- loc[, 2]
-plot(x, y, col = colors, xlab = "", ylab = "", main = "Multidimensional Scaling Analysis (IBS Distance)", pch = 19)
+plot(x, y, col = colors1, xlab = "", ylab = "", main = "Multidimensional Scaling Analysis (IBS Distance)", pch = 19)
+dev.copy(pdf, "MDS.pdf", height=7, width=7)
+dev.off()
 
 # Permute clusters
 set.seed(100)
@@ -189,8 +194,8 @@ ibs.hc <- snpgdsHCluster(snpgdsIBS(genofile, num.thread = 2, sample.id = samp.no
 # to determine groups of individuals automatically
 install.packages('dendextend')
 library(dendextend)
-rv <- snpgdsCutTree(ibs.hc, col.list = colors.order)
-colors.order = colors[rv$samp.order] #re-order colors to match the dendrogram
+rv <- snpgdsCutTree(ibs.hc)
+colors.order = colors1[rv$samp.order] #re-order colors to match the dendrogram
 rv2 = set(rv$dendrogram, "leaves_col", colors.order)
 rv2 = set(rv2, "leaves_cex", 1.25)
 pdf("MW-PC-dendrogram.pdf")
