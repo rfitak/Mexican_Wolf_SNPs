@@ -8,46 +8,70 @@
     - 172114 out of the 173662 SNPs remained
 5. Saved "Reproducibility and Heritability" report
     - this analysed the errors among replicates and Mendelian inheritance errors among parent-child relationships.
-    - [view the report here](./Data/reproducibility-report.txt)
-
-# Converted to binary format using PLINK
-plink --noweb --nonfounders --dog --file MW-12-8-14 --make-bed --out MW-12-8-14
-	# Results:
-	# MW-12-8-2014.bed/bim/fam
-	# Results stored in 1.log
-# Get rid of "nan" for genetic distances
-sed -i 's/nan/0/g' MW-12-8-2014.bim
-
-# In EXCEL datasheet, made a new .fam file with all
-# the correct sample information.
-# May need to update phenotypes later 
-# Exported as a .csv, changed "," to " "
-# Changed new line characters to "\n"
-# Converted existing fam file with this file
-
-# Calculated Missingness statistics
-plink --noweb --nonfounders --dog --bfile MW --missing --out MW
+    - [view the report here](./Data/MW-5-9-2014-Reproducibility_and_Heritability_Report.csv)
+6. Converted to binary format using [PLINK v1.07](http://zzz.bwh.harvard.edu/plink/)
+```bash
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --file MW \
+   --make-bed \
+   --out MW
+```
+7.  Modified the .fam file with the updated sample identifications
+8.  Calculated Missingness statistics (genotyping rates by locus and individual
+```bash
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MW \
+   --missing \
+   --out MW
 	# Results:
 	# MW.imiss - missingness statistics by individual
 	# MW.lmiss - missingness statistics by loci
+```
+9.  Made a file `remove.list` containing the IDs of the 8 individuals to remove
+    - 8 duplicates (the replicate with the lowest call rate for each pair was removed)
+10. Made a cleaned file:
+    - by removing the 8 individuals above
+    - SNPs with a minimum allele frequency <0.05
+    - SNPs with a genotyping rate <90%
+    - Individuals with a genotyping rate <90%
+    - Hardy-Weinberg Equilibrium p<0.001
+    - Removed X and Y SNPs (XY\_exclude.list)
+```bash
+# Get list of X and Y SNPs
+grep \
+   -e "^39" \
+   -e "^40" MW.bim | \
+   cut -f2 > XY_exclude.list
 
-# Removed Replicates of lower genotyping rate (remove.list), filter:
-# Minimum allele frequency <0.05
-# SNP missing rate 0.1
-# Individual missingness 0.90
-# Hardy-Weinberg Equilibrium p<0.001
-# Removed X and Y SNPs
-
-plink --noweb --nonfounders --dog --bfile MW-12-8-2014 --remove remove.list --exclude XY_exclude.list \
-     --mind 0.1 --maf 0.05 --geno 0.1 --hwe 0.001 --make-bed --out MW.clean
-	# 172114 markers to be included from [ MW-12-8-2014.bim ]
-	# Reading pedigree information from [ MW-12-8-2014.fam ] 
-	# 96 individuals read from [ MW-12-8-2014.fam ] 
+# Process in PLINK
+plink \
+   --noweb \
+   --nonfounders \
+   --dog \
+   --bfile MW \
+   --remove remove.list \
+   --exclude XY_exclude.list \
+   --mind 0.1 \
+   --maf 0.05 \
+   --geno 0.1 \
+   --hwe 0.001 \
+   --make-bed \
+   --out MW.clean
+   # Results
+	# 172114 markers to be included from [MW.bim ]
+	# Reading pedigree information from [ MW.fam ] 
+	# 96 individuals read from [ MW.fam ] 
 	# 50 individuals with nonmissing phenotypes
 	# Assuming a quantitative trait
 	# Missing phenotype value is -9
 	# 50 males, 46 females, and 0 of unspecified sex
-	# Reading genotype bitfile from [ MW-12-8-2014.bed ] 
+	# Reading genotype bitfile from [ MW.bed ] 
 	# Detected that binary PED file is v1.00 SNP-major mode
 	# Reading list of SNPs to exclude [ XY_exclude.list ] ... 5532 read
 	# Reading individuals to remove [ remove.list ] ... 8 read
@@ -67,13 +91,12 @@ plink --noweb --nonfounders --dog --bfile MW-12-8-2014 --remove remove.list --ex
 	# Writing map (extended format) information to [ MW.clean.bim ] 
 	# Writing genotype bitfile to [ MW.clean.bed ] 
 	# Using (default) SNP-major mode
+```
+
 
 # These individuals had low call rates (<0.90)
 	# WILD	1053
 	# X	836
 	# GR	418
 	# X	1033
-
-# NOTE:  To do Mendelian error checks, need to change FID 
-# to same for the entire set of MAT/PAT/CHILD samples
 
