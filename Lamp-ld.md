@@ -8,7 +8,7 @@ This code is for running and visualizing the various results using LAMP-LD v1.0.
 The requirements to run this script are:
 - the phased output from BEAGLE for all samples (chr\#_phased.txt)
 - a master SNP file (SNP-master.tsv), which essentially is a PLINK-formatted .bim file
-- an R script ([geno-format.R](./Scripts/geno-format.R)) to convert formatting, see the script in the SCRIPTS folder
+- an R script ([geno-format.R](./Data/geno-format.R)) to convert formatting, see the script in the SCRIPTS folder
 - A PLINK-formatted bed/bim/fam file of the total SNP data (MERGED.clean.{bed|bim|fam})
 - A PLINK-formatted fam file of just the individuals to keep in the North American gray wolf (NA_gw) populations
 - The scripts available in the [LAIT](http://www.pitt.edu/~wec47/lait.html) package
