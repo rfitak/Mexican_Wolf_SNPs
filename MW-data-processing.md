@@ -267,7 +267,7 @@ ped.data = read.table("MW-pedigree-data.csv", header = T, sep = ",")
 
 # Get matching birthdates
 
-
+x
 
 ```
 Then, we built a simple linear model (regression) to describe the relationship between heterozygosity and birthdate.
