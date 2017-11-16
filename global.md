@@ -269,3 +269,55 @@ sed -i -e "s/ /\t/g" \
    -e "s/,/\t/g" tmp
 mv tmp threepop.k100.tbl
 ```
+
+#### Process and plot 3 population test output in R
+```R
+# Load 3 population test scores
+a = read.table("threepop.k100.tbl", sep = "\t", header = F)
+
+# Subset by groups/pops
+mb = subset(a, V1 == "MB")
+gr = subset(a, V1 == "GR")
+ar = subset(a, V1 == "AR")
+x = subset(a, V1 == "X")
+wolves = c("EURO","MB","GR","AR","X","WO_LUPA","WO_BC","WO_INTAK","WO_WO","WO_MN","WO_ID","WO_SEAK","WO_MAT")
+dogs = c("MIXED","PDL","BET","BGL","BMD","BOC","BOT","BRS","COS","DAC","DOB","EBD","ELK","EST","EUR","FSP","GOS","GRE","GRY","GSH","GSL","HUS","IRW","JRT","LRE","NFD","NSD","RTW","SCI","SHP","STP","TYO","WEI")
+
+# Separate by parental population pairs (ww = wolf x wolf, dog = dog x dog, dw = dog x wolf | wolf x dog)
+mb.ww = mb[mb$V2 %in% wolves & mb$V3 %in% wolves,]
+mb.dog = mb[mb$V2 %in% dogs & mb$V3 %in% dogs,]
+mb.dw = rbind(mb[mb$V2 %in% dogs & mb$V3 %in% wolves,], mb[mb$V2 %in% wolves & mb$V3 %in% dogs,])
+
+ar.ww = ar[ar$V2 %in% wolves & ar$V3 %in% wolves,]
+ar.dog = ar[ar$V2 %in% dogs & ar$V3 %in% dogs,]
+ar.dw = rbind(ar[ar$V2 %in% dogs & ar$V3 %in% wolves,], ar[ar$V2 %in% wolves & ar$V3 %in% dogs,])
+
+gr.ww = gr[gr$V2 %in% wolves & gr$V3 %in% wolves,]
+gr.dog = gr[gr$V2 %in% dogs & gr$V3 %in% dogs,]
+gr.dw = rbind(gr[gr$V2 %in% dogs & gr$V3 %in% wolves,], gr[gr$V2 %in% wolves & gr$V3 %in% dogs,])
+
+x.ww = x[x$V2 %in% wolves & x$V3 %in% wolves,]
+x.dog = x[x$V2 %in% dogs & x$V3 %in% dogs,]
+x.dw = rbind(x[x$V2 %in% dogs & x$V3 %in% wolves,], x[x$V2 %in% wolves & x$V3 %in% dogs,])
+
+# Build bars for barplot
+bars = list(mb.ww$V6, mb.dog$V6, mb.dw$V6, ar.ww$V6, ar.dog$V6, ar.dw$V6, gr.ww$V6, gr.dog$V6, gr.dw$V6, x.ww$V6,x.dog$V6, x.dw$V6)
+
+# Reorder bars
+bars = bars[c(1, 4, 7, 10, 2, 5, 8, 11, 3, 7, 9, 12)]
+
+# Setup colors
+colors = c("#3771c8", "#d40000", "green", "darkgray")
+colors = rev(colors[c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)])
+
+# Build plot
+plot.new()
+plot.window(xlim = c(-42, 181), ylim = c(1,12))
+boxplot(rev(bars), horizontal = T, col = colors, add = T, border = T)
+abline(v = 0, lwd = 2, lty = "dashed", col = "black")
+abline(h = c(4.5, 8.5), lwd = 1, lty = 1, col = "black")
+legend("topright", legend = c("MB", "AG", "GR", "CL"), col = rev(colors), pch = 15)
+title(xlab = "Z-score", ylab = "Population")
+dev.copy(pdf, "zscores.pdf")
+dev.off()
+```
