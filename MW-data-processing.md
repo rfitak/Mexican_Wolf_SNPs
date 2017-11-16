@@ -253,7 +253,7 @@ sed "s/^ *//g" MW.het | tr " " "\t" | tr -s "\t" > tmp
 mv tmp MW.het
 ```
 
-Unfortunately, the output file just describes the number of observed and expected homozygous loci.  We can calculate actual heterozygosity in R.
+Unfortunately, the output file just describes the number of observed and expected homozygous loci.  We can calculate actual heterozygosity in R then build a simple linear regression to describe the relationship between heterozygosity and birthdate.
 
 ```R
 # Load data
@@ -261,14 +261,28 @@ data = read.table("MW.het", header = T, sep = "\t")
 
 # Get heterozygosity
 Het = 1 - (data$O.HOM. / data$N.NM.)
+Het[77] = NA # drop the dog 'Hershey'
 
 # Read in pedigree data again
 ped.data = read.table("MW-pedigree-data.csv", header = T, sep = ",")
 
 # Get matching birthdates
+birthdates = as.character(ped.data[match(data$IID, ped.data$SSP_NUM),25])
+birthdates[77] = NA # Drop the dog 'Hershey'
+birthdates = as.Date(birthdates, "%m/%d/%y")
 
-x
+# Get the population assignments
+pops = as.character(data$FID)
+pops = gsub("WILDMB", "MB", pops)
+pops = gsub("WILD", "X", pops)
+pops[77] = NA # Drop the dog 'Hershey'
 
+# Combine into data table
+tbl = data.frame(pop = pops, birth = birthdates, H = Het)
+
+# Build a separate linear model for MB and X (cross-lineage) Mexican wolves
+   # Make sure to only measure post merger (1995)
+MB.lm = lm(H ~ birth, data = subset(tbl, pop == "MB" & birth > as.Date("1995-01-01")))
+X.lm = lm(H ~ birth, data = subset(tbl, pop == "X" & birth > as.Date("1995-01-01")))
 ```
-Then, we built a simple linear model (regression) to describe the relationship between heterozygosity and birthdate.
-
+## Special note: the modeling results generated here may differ slightly from that reported in the paper (very similar, although qualitatively the same).  This is a result of the 1) slight variation in markers selected when pruned each time, and 2) an additional Mexican wolf sample was removed in the Merged dataset, which was exlcuded from various analyses to be conservative.
