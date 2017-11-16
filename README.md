@@ -15,5 +15,5 @@ Some ancillary data files and custom scripts are available in the [Data](./Data)
 6.  [Simulating admxture](./simulations.md)
     - A series of simulations to evaluate expected local haplotype structure under various migration schemes between Mexican wolves and domestic dogs.
 
-## All work is licesnsed under:
+## All code and content herein is licensed under:
 ## [GNU General Public License v2.0](./LICENSE)
