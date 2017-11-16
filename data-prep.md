@@ -236,13 +236,13 @@ plink \
     # Results:  166583/172115 SNPs, 20 individuals call rate: 0.987535
 ```
 
-Next, we have to make list of individuals to exclude from the various studies.  For Mexican wolves, we need to exclude the 8 replicated samples with the lowest call rate (see XXXXXX) and the 4 additional samples with call rate below the threshold (90%).  To do this, we compare the list of 96 samples (MW.fam) with the list of 84 samples from the MW-only analysis from earlier (see [here](....)).
+Next, we have to make list of individuals to exclude from the various studies.  For Mexican wolves, we need to exclude the 8 replicated samples with the lowest call rate and the 4 additional samples with call rate below the threshold (90%).  To do this, we compare the list of 96 samples (MW.fam) with the list of 84 samples from the MW-only analysis from earlier (MW.clean.fam).
 
 ```bash
 #  Compare the two sample sets to get a list of samples to exclude
 comm \
    <(sort MW.fam) \
-   <(sort ../MW-ANALYSES/MW.clean.fam) | \
+   <(sort MW.clean.fam) | \
    cut -f1 | \
    grep -v "^$" | \
    cut -d" " -f1-2 > remove.list
@@ -388,7 +388,7 @@ plink \
    # Total genotyping rate in remaining 1021 individuals is 0.990959
 ```
 
-Awesome!  Now we have a file containing our final set of filtered SNPs and individuals across all studies.  Please see the next page (xxxx) for LD pruning, PCA, etc.
+Awesome!  Now we have a file containing our final set of filtered SNPs and individuals across all studies.  Please see the other pages for LD pruning, PCA, etc.
 
 The table below summarizes the results:
 
