@@ -81,6 +81,9 @@ dev.off()
 ```
 
 The main PCA and barplot are published in the manuscript.  The paired PCA plot for the first 4 principle components can be found below:
+    - Dog = green = circles
+    - GrayWolf = orange = triangles
+    - MexWolf = blue = crosses
 
 ![Paired-PCA](./Data/Merged-pairs-PCA.png)
 
