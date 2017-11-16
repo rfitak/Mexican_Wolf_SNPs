@@ -187,33 +187,85 @@ admixture \
    tee log${SLURM_ARRAY_TASK_ID}.k${i}.out
 done
 ```
-   
-   
-   
-   
-   
-   
-   
-   The Supervised admixture plot can then be plotted in R
-   
-   ```R
-levels=c("PDL","DOG","GSL","HUS","MIXED","EURO","WO_LUPA",
-   "WO_BC","WO_INTAK","WO_SEAK","WO_ID","WO_MN","WO_MAT",
-   "WO_WO","MB","AR","GR","X","MEX_XX")
-pops=factor(scan("pops.txt", what="character"),levels=levels)
-at=cumsum(summary(pops))
-for (i in 2:6){
-file=paste0("MERGED.clean.pruned.",i,".Q")
-tbl=t(as.matrix(read.table(file)))
-tbl=tbl[,order(pops)]
-colors=c("#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f")
-dev.new(width=12, height=7)
-barplot(tbl, ylab="Ancestry", border=NA, space=0, las=2, cex.lab=1.3, col=colors)
-axis(1, at=at, labels=levels)
-dev.copy(pdf,paste0("barplot.",i,".pdf"))
-dev.off()
-dev.off()
+
+#### Get a file of CV error for each K in each file
+
+```bash
+for k in {1..10}
+do
+   for i in {1..100}
+   do
+      a=$(grep CV log${i}.k${k}.out | cut -d" " -f4)
+      echo "$k $i $a" >> CV.tbl
+   done
+done
+```
+
+# Plot CV error in R
+```R
+# Load library for error bars
+library(Hmisc)
+
+# Load CV error data file
+a = read.table("CV.tbl", sep = " ", header = F)
+
+# Begin plot
+plot.new()
+plot.window(xlim = c(1, 10), ylim = c(min(a$V3), max(a$V3)))
+axis(1)
+axis(2,las = 1)
+box()
+title(xlab = "K", ylab = "CV error")
+for (i in 1:100){
+   y = subset(a, V2 == i)
+   points(y$V1, y$V3, type = "l", col = "gray", lwd = 0.5)
 }
+for (i in 1:10){ # Plot error bars
+   y = subset(a, V1 == i)$V3
+   ul = mean(y) + sd(y)
+   ll = mean(y) - sd(y)
+   #points(i, mean(y), pch = 19)
+   errbar(i, mean(y), ul, ll, pch = 1, cex = 1.5, col = "black", add = T)
+}
+```
 
-   ```
+## 3 Population test
+Here we perform the three population test as implemented in [TREEMIX v1.12](https://code.google.com/archive/p/treemix/).  TREEMIX was published in [Pickrell et al. 2012 *PLoS Genetics*](https://doi.org/10.1371/journal.pgen.1002967).  The actual 3 population test, or F3 test, is described in two papers:
+1.  [Reich et al. 2009 *Nature*](https://www.nature.com/articles/nature08365)
+2.  [Patterson et al. 2012 *Genetics*](https://doi.org/10.1534/genetics.112.145037)
+    - "The 3-population test, is a formal test of admixture and can provide clear evidence of admixture, even if the gene ﬂow events occurred hundreds of generations ago. If we want to test if C has ancestry from populations related to A and B then we can perform the test f3(C; A, B). If C is unadmixed, then f3 (C ; A, B) has non-negative mean. If f3 (C ; A, B) has negative mean, in contrast, this implies that C is admixed with populations close to A and B (check the significance of the f3 mean and Z-score).
 
+We first made a new cluster file that groups samples into more specific populations based on breed and captive population of Mexican Wolf (MB, GR, AG, or CL).  The new cluster file is available here:
+[canine cluster file 2](./Data/canine-cluster2.txt)
+
+```bash
+# Get allele frequencies by population (from cluster file)
+plink \
+   --noweb \
+   --dog \
+   --nonfounders \
+   --bfile MERGED.clean.pruned \
+   --freq \
+   --within canine-cluster2.txt \
+   --out MERGED.clean.pruned.treemix
+
+# Compress the 'stratified' allele frequency file
+gzip MERGED.clean.pruned.treemix.frq.strat
+
+# Convert to a treemix input file using the python script included with TREEMIX
+plink2treemix.py MERGED.clean.pruned.treemix.frq.strat.gz treemix-input.gz
+
+# Run TREEMIX
+threepop \
+   -i treemix-input.gz \
+   -k 100 > threepop.k100.output
+
+# Remove unnecessary lines from output
+grep -v "^Estim" threepop.k100.output | \
+   grep -v "^total" | \
+   grep -v "^npop" > tmp
+sed -i -e "s/ /\t/g" \
+   -e "s/;/\t/g" \
+   -e "s/,/\t/g" tmp
+mv tmp threepop.k100.tbl
+```
