@@ -89,4 +89,7 @@ The main PCA and barplot are published in the manuscript.  The paired PCA plot f
 ![Paired-PCA](./Data/Merged-pairs-PCA.png)
 
 
+## Admixture analysis
+In this section we analysed the merged dataset using the program [ADMIXTURE v1.3](https://www.genetics.ucla.edu/software/admixture/).  The paper describing the software can be found in [Alexander et al. 2009 *Genome Research*](http://genome.cshlp.org/content/early/2009/07/31/gr.094052.109). Here are the general steps to run this analysis using the pruned dataset:
+1.  xxx
 
