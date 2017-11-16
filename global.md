@@ -82,4 +82,7 @@ dev.off()
 
 The main PCA and barplot are published in the manuscript.  The paired PCA plot for the first 4 principle components can be found below:
 
+![Paired-PCA](./Data/Merged-pairs-PCA.png)
+
+
 
