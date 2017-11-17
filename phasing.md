@@ -1,5 +1,5 @@
 # Phasing the Merged genotypes
-In order to run LAMP-LD, we first have to have phased genotypes.  We phased genotypes using [Beagle v3.3.2](http://faculty.washington.edu/browning/beagle/b3.html) separately for each chromosome.  The Beagle phasing algorithm is described in [Browning and Browning 2007, * Am. J. Hum. Genet.*](http://www.sciencedirect.com/science/article/pii/S0002929707638828?via%3Dihub).  The phasing also included the imputation of missing genotypes.
+In order to run LAMP-LD, we first have to have phased genotypes.  We phased genotypes using [Beagle v3.3.2](http://faculty.washington.edu/browning/beagle/b3.html) separately for each chromosome.  The Beagle phasing algorithm is described in [Browning and Browning 2007, *Am. J. Hum. Genet.*](http://www.sciencedirect.com/science/article/pii/S0002929707638828?via%3Dihub).  The phasing also included the imputation of missing genotypes.
 
 ```bash
 # Make BEAGLE header file
@@ -37,7 +37,7 @@ The phasing included the parameters:
 - nsamples=20 :: From the manual: "a positive integer giving the number of haplotype pairs to sample for each individual during each iteration of the phasing algorithm. The nsamples argument is optional. The default value is nsamples=4. If you are phasing an extremely large sample (say > 4000 individuals), you may want to use a smaller nsamples parameter (e.g. 1 or 2) to reduce computation time. If you are phasing a small sample (say < 200 individuals), you may want to use a larger nsamples parameter (say 10 or 20) to increase accuracy."
 
 ### Separate phased haplotypes by population
-Here we separated out the phased haplotypes by the three populations coded in the [canine.cluster](./Data/canine.cluster) file.  The script below utilizes a short and simple perl script found here: [extract_id_beagle.pl](./Data/extract_id_beagle.pl).
+Here we separated out the phased haplotypes by the three populations coded in the [canine.cluster](./Data/canine.cluster) file.  The script below utilizes a short and simple perl script found here: [extract_id_beagle.pl](./Data/extract_id_beagle.pl).  Thank you Consuelo Quinto Cortes!!!!
 
 ```bash
 # Make a file listing each individual for each population
@@ -126,3 +126,8 @@ do
    cd ..
 done
 ```
+The final, phased haplotypes by chromosome can be found inside each folder as:
+- chr\*\_phased.txt  :: phased haplotypes for the entire dataset
+- MexWolf\_beagle.1  :: phased haplotypes for the Mexican Wolves only
+- GrayWolf\_beagle.1  :: phased haplotypes for the Gray Wolves only
+- Dog\_beagle.1  :: phased haplotypes for the Dogs only
