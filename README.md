@@ -9,7 +9,7 @@ Some ancillary data files and custom scripts are available in the [Data](./Data)
 3. [Global ancestry analysis in the merged dataset](./global.md)
     - LD pruning, PCA, Admixture, and treemix analysis from the merged genotyping across all datasets
 4.  [Phasing](./phasing.md)
-    - xxxx
+    - Phasing and imputing missing genotypes in the merged dataset using Beagle v3.3.2
 5.  [Identifying local admixture in MW with domestic dogs](./Lamp-ld.md)
     - using LAMPLD to find local haplotype assignment to parental populations
 6.  [Simulating admxture](./simulations.md)
