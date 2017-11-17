@@ -127,7 +127,7 @@ do
 done
 ```
 The final, phased haplotypes by chromosome can be found inside each folder as (N = chromosome):
-- chr\*\_phased.txt  :: phased haplotypes for the entire dataset
+- chrN\_phased.txt  :: phased haplotypes for the entire dataset
 - MexWolf\_beagle.N  :: phased haplotypes for the Mexican Wolves only
 - GrayWolf\_beagle.N  :: phased haplotypes for the Gray Wolves only
 - Dog\_beagle.N  :: phased haplotypes for the Dogs only
