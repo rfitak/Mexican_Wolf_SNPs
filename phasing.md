@@ -37,7 +37,7 @@ The phasing included the parameters:
 - nsamples=20 :: From the manual: "a positive integer giving the number of haplotype pairs to sample for each individual during each iteration of the phasing algorithm. The nsamples argument is optional. The default value is nsamples=4. If you are phasing an extremely large sample (say > 4000 individuals), you may want to use a smaller nsamples parameter (e.g. 1 or 2) to reduce computation time. If you are phasing a small sample (say < 200 individuals), you may want to use a larger nsamples parameter (say 10 or 20) to increase accuracy."
 
 ### Separate phased haplotypes by population
-Here we separated out the phased haplotypes by the three populations coded in the [canine.cluster](./Data/canine.cluster) file.  The script below utilizes a short and simple perl script found here: [extract_id_beagle.pl](./Data/extract_id_beagle.pl).  Thank you Consuelo Quinto Cortes!!!!
+Here we separated out the phased haplotypes by the three populations coded in the [canine.cluster](./Data/canine.cluster) file.  The script below utilizes a short and simple perl script found here: [extract_id_beagle.pl](./Data/extract_id_beagle.pl).  Thank you [Consuelo Quinto Cortes](https://github.com/cdquinto)!!!!
 
 ```bash
 # Make a file listing each individual for each population
