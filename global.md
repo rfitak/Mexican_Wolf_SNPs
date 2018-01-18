@@ -76,7 +76,7 @@ axis(2, las = 2)
 box()
 points(pca$eigenvect[,1], pca$eigenvect[,2], pch = as.numeric(pops$V3), col = as.factor(pops$V3))
 title(xlab = "PC 1 - 13.2%", ylab = "PC 2 - 3.8%")
-legend("topright", legend = c("Dog", "Gray Wolf", "Mexican Wolf"), col = c(1:3), pch = c(1:3), bty = 'n')
+legend("topright", legend = c("Dog", "NAGW", "EUGW", "MW"), col = c(1, 2, "black", 3), pch = c(1, 2, 2, 3), bty = 'n')
 dev.off()
 ```
 
@@ -106,7 +106,7 @@ In this section we analysed the merged dataset using the program [ADMIXTURE v1.3
 cut -f3 -d" " canine.cluster | \
    sed "s/MexWolf/-/g" > MERGED.clean.pruned.pop
 
-# Run the supervised admxiture analysis with k=2
+# Run the supervised admxiture analysis with k=3
 admixture \
    -j2 \
    --supervised \
@@ -114,7 +114,7 @@ admixture \
    -C 0.0001 \
    -c 0.0001 \
    MERGED.clean.pruned.bed \
-   2
+   3
    ```
    
 #### Next, in R we generated the 100 bootstrapped datasets.
