@@ -82,7 +82,7 @@ done
 ```
 
 ## Convert to bed format
-Here we convert the output to a bed-type format (xxxxxx) whoch we can use for downstreat plotting
+Here we convert the output to a bed-type format (Chromosome Start End   Individual  Genotype[0,1,2]) which we can use for downstream plotting
 ```bash
 for c in {1..38}
    do
