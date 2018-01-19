@@ -80,3 +80,34 @@ for i in {1..38}; do
 # Close loop
 done
 ```
+
+## Convert to bed format
+Here we convert the output to a bed-type format (xxxxxx) whoch we can use for downstreat plotting
+```bash
+for c in {1..38}
+   do
+   for i in {1..88}
+      do
+      haps=$(sed -n "$i"p CHR${c}/chr${c}_lampld.out | sed "s/^ //" | tr " " "\n")
+      nsegs=$(echo "$haps" | wc -l)
+      if [ "$nsegs" == "1" ]
+         then
+         snpend=$(echo "$haps" | cut -d":" -f2)
+         geno=$(echo "$haps" | cut -d":" -f1)
+         stop=$(sed -n "$snpend"p CHR${c}/chr.pos)
+         echo -ne "${c}\t0\t${stop}\tInd_${i}\t${geno}\n" >> out.bed
+      else
+         start=0
+         for hap in `echo "$haps"`
+            do
+            snp=$(echo -n "$hap" | cut -d":" -f2)
+            stop=$(sed -n "$snp"p CHR${c}/chr.pos)
+            geno=$(echo -n "$hap" | cut -d":" -f1)
+            echo -ne "${c}\t${start}\t${stop}\tInd_${i}\t${geno}\n" >> out.bed
+            start=$(( $stop + 1 ))
+         done
+      fi
+      echo "Finished chr $c ind $i"
+   done
+done
+```
