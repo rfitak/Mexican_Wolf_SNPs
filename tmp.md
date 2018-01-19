@@ -150,9 +150,9 @@ for (n in seq(from = 1, to = 175, by = 2)){
    mean.len.NAGW = c(mean.len.NAGW, mean(frags.NAGW[,3] - frags.NAGW[,2]))
    mean.len.EUGW = c(mean.len.EUGW, mean(frags.EUGW[,3] - frags.EUGW[,2]))
    mean.len.dog = c(mean.len.dog, mean(frags.dog[,3] - frags.dog[,2]))
-   q.NAGW = sum(frags.NAGW[,3] - frags.NAGW[,2]) / sum(chr)
-   q.EUGW = sum(frags.EUGW[,3] - frags.EUGW[,2]) / sum(chr)
-   q.dog = sum(frags.dog[,3] - frags.dog[,2]) / sum(chr)
+   q.NAGW = sum(as.numeric(frags.NAGW[,3] - frags.NAGW[,2])) / (2 * sum(chr))
+   q.EUGW = sum(as.numeric(frags.EUGW[,3] - frags.EUGW[,2])) / (2 * sum(chr))
+   q.dog = sum(as.numeric(frags.dog[,3] - frags.dog[,2])) / (2 * sum(chr))
    q[[c]] = c(q.NAGW, q.EUGW, q.dog)
    c = c + 1
 }
