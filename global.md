@@ -52,7 +52,7 @@ pc.percent <- 100 * pca$eigenval[1:32]/sum(pca$eigenval, na.rm = T)
 
 # Plot Principle components (published in the article)
 pdf("Merged-PCbars.pdf", width = 9, height = 7)
-barplot(pc.percent[1:20], las = 1, ylab = "Percent Variation", xlab = "Principle Component", names.arg = c(1:20), ylim = c(0,15), axis.lty = 1)
+barplot(pc.percent[1:15], las = 1, ylab = "Percent Variation", xlab = "Principle Component", names.arg = c(1:15), ylim = c(0,35), axis.lty = 1)
 dev.off()
 
 # Read in the canine cluster file for plotting
@@ -75,7 +75,7 @@ axis(1)
 axis(2, las = 2)
 box()
 points(pca$eigenvect[,1], pca$eigenvect[,2], pch = as.numeric(pops$V3), col = as.factor(pops$V3))
-title(xlab = "PC 1 - 13.2%", ylab = "PC 2 - 3.8%")
+title(xlab = "PC 1 - 31.6%", ylab = "PC 2 - 9.1%")
 legend("topright", legend = c("Dog", "NAGW", "EUGW", "MW"), col = c(1, 2, "black", 3), pch = c(1, 2, 2, 3), bty = 'n')
 dev.off()
 ```
