@@ -104,9 +104,9 @@ for c in {1..38}
          snp=$(( $snp + 1 ))
       done < ${i}.tmp
       rm -rf ${i}.tmp
-      grep "0$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t0/g" >> ../../tracts.bed.${c}
-      grep "1$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t1/g" >> ../../tracts.bed.${c}
-      grep "2$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t2/g" >> ../../tracts.bed.${c}
+      grep "0$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t0/g" >> ../tracts.bed.${c}
+      grep "1$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t1/g" >> ../tracts.bed.${c}
+      grep "2$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t2/g" >> ../tracts.bed.${c}
       rm -rf ${i}.bed.tmp
    done
    cd ..
