@@ -4,8 +4,7 @@ This code is for running and visualizing the various results using LAMP-LD v1.3.
 
 The requirements to run this script are:
 - the phased output from BEAGLE for all samples (chr\#_phased.txt)
-- a master SNP file (SNP-master.tsv), which essentially is a PLINK-formatted .bim file
-- an R script ([geno-format.R](./Data/geno-format.R)) to convert formatting, see the script in the SCRIPTS folder
+- an R script ([geno-format.R](./Data/geno-format.R)) to convert formatting, see the script in the DATA folder
 - A PLINK-formatted bed/bim/fam file of the total SNP data (MERGED.clean.{bed|bim|fam})
 - A PLINK-formatted fam file of just the Mexican wolves to keep ([MW.fam](./Data/MW.fam))
 - The scripts available in the [LAIT](http://www.pitt.edu/~wec47/lait.html) package
@@ -13,7 +12,7 @@ The requirements to run this script are:
 - LAMP-LD v1.3
 ```bash
 # Move into folder of interest
-cd /wrk/rfitak/LAIT/NA_WOLF
+cd /wrk/rfitak/3WAY
 
 # Set up a loop for each chromosome
 for i in {1..38}; do
@@ -26,9 +25,10 @@ for i in {1..38}; do
    mv ../chr${i}_phased.txt .
 
    # Get list of SNPs for the chromosome in two formats
-   grep "chr${i}_" ../SNP-master.tsv > chr${i}.map
+   grep "chr${i}_" ../MERGED.clean.bim | \
+      cut -f1-4 > chr${i}.map
    cut -f2 chr${i}.map > chr${i}.snps
-
+   
    # Run R code to format input files
    Rscript ../geno-format.R chr${i}_phased.txt ${i}
 
@@ -39,43 +39,43 @@ for i in {1..38}; do
       --nonfounders \
       --bfile ../MERGED.clean \
       --chr ${i} \
-      --keep ../NA_gw.fam \
+      --keep ../MW.fam \
       --recode \
-      --out chr${i}_NA_gw.unphased
-   rm -rf chr${i}_NA_gw.unphased.map chr${i}_NA_gw.unphased.nosex chr${i}_NA_gw.unphased.log
+      --out chr${i}_mw.unphased
+   rm -rf chr${i}_mw.unphased.map chr${i}_mw.unphased.nosex chr${i}_mw.unphased.log
 
-   # Make a shortcut to the program directory
+   # Make input files for each program then run it.
    bin=/wrk/rfitak/LAIT/bin
 
-   # Run LAIT to generate input files for LAMP-LD
-   mkdir LAMPLD
+   # LAMPLD
    $bin/lait.pl \
-      lampld 2 \
+      lampld \
+      3 \
       chr${i}.map \
-      chr${i}_NA_gw.unphased.ped \
+      chr${i}_mw.unphased.ped \
       chr${i}.snps \
-      chr${i}_EU_gw.hap \
+      chr${i}_NAgw.hap \
+      chr${i}_EUgw.hap \
       chr${i}_dog.hap \
-      LAMPLD
-   
-   # Run LAMP-LD
-   cd LAMPLD
-   $bin/unolanc2way \
+      .
+
+   /wrk/rfitak/LAIT/3WAY/LAMPLD-v1.3/bin/unolanc \
+      3 \
       100 \
       50 \
       chr.pos \
       pop1.hap \
       pop2.hap \
+      pop3.hap \
       genofile.gen \
       chr${i}_lampld.out
-      
-   # Run various LAIT programs to summarize the output
+
    $bin/convertLAMPLDout.pl chr${i}_lampld.out chr${i}_lampld.converted.out
-   $bin/standardizeOutput.pl lampld 2 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
-   $bin/averageAncestry.pl phased 2 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt  
-   
+   $bin/standardizeOutput.pl lampld 3 chr${i}_lampld.converted.out chr${i}_ancestry.standardized.txt
+   $bin/averageAncestry.pl phased 3 chr${i}_ancestry.standardized.txt chr${i}_avg.ancestry.txt 
+
    # Move back into main folder
-   cd ../..
+   cd ..
 
 # Close loop
 done
