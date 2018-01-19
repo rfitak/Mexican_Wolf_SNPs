@@ -84,6 +84,47 @@ done
 ## Convert to bed format
 Here we convert the output to a bed-type format (Chromosome Start End   Individual  Genotype[0,1,2]) which we can use for downstream plotting
 ```bash
+module load gcc/4.7.2
+module load bedtools/2.26.0
+for c in {1..38}
+   do
+   cd CHR${c}
+   for i in {1..176}
+      do
+      sed -n "$i"p chr${c}_lampld.converted.out | fold -w1 | paste chr.pos - > ${i}.tmp
+      start=0
+      snp=1
+      while read line
+         do
+         stop=$(echo "${line}" | cut -f1)
+         anc=$(echo "${line}" | cut -f2)
+         echo -e "${c}\t${start}\t${stop}\tInd_${i}\t${anc}" >> ${i}.bed.tmp
+         start=$stop
+         echo "Finished chromosome ${c} haplotype ${i} SNP ${snp}"
+         snp=$(( $snp + 1 ))
+      done < ${i}.tmp
+      rm -rf ${i}.tmp
+      grep "0$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t0/g" >> ../../tracts.bed.${c}
+      grep "1$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t1/g" >> ../../tracts.bed.${c}
+      grep "2$" ${i}.bed.tmp | bedtools merge -i - | sed "s/$/\tInd_${i}\t2/g" >> ../../tracts.bed.${c}
+      rm -rf ${i}.bed.tmp
+   done
+   cd ..
+done
+```
+
+
+
+
+
+
+
+
+
+
+
+# Old BED-maker code
+```bash
 for c in {1..38}
    do
    for i in {1..88}
