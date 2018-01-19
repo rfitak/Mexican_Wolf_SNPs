@@ -117,7 +117,7 @@ cat tracts.bed.{1..38} > tracts.bed
 rm -rf tracts.bed.{1..38}
 ```
 
-## Visualizing the results
+## Visualizing the results using R
 
 First, we create a summary table of the number and length of tracts from the parental populations in each individual
 ```R
@@ -162,10 +162,16 @@ pops = c("CL", "CL", "MB", rep("CL",3), "MB","CL","CL","CL","CL","MB","CL","CL",
 data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mean.len.EUGW, mean.len.dog)
 colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog")
 write.table(data, file = "MW-tracts.summary.tsv", sep = "\t", quote = F, row.names = F)
-
 ```
 
+### Next we can load the above table when needed and plot the output
+```R
+library(reshape)
+library(ggplot2)
+library("Rgraphviz")
+library(scales)
 
+```
 
 
 
