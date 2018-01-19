@@ -133,7 +133,7 @@ counts.dog = vector()
 mean.len.NAGW = vector()
 mean.len.EUGW = vector()
 mean.len.dog = vector()
-q = list()
+q = vector()
 c = 1
 
 # Loop through each individual
@@ -153,14 +153,14 @@ for (n in seq(from = 1, to = 175, by = 2)){
    q.NAGW = sum(as.numeric(frags.NAGW[,3] - frags.NAGW[,2])) / (2 * sum(chr))
    q.EUGW = sum(as.numeric(frags.EUGW[,3] - frags.EUGW[,2])) / (2 * sum(chr))
    q.dog = sum(as.numeric(frags.dog[,3] - frags.dog[,2])) / (2 * sum(chr))
-   q[[c]] = c(q.NAGW, q.EUGW, q.dog)
+   q = rbind(q, c(q.NAGW, q.EUGW, q.dog))
    c = c + 1
 }
 
 # Make summary data table
 pops = c("CL", "CL", "MB", rep("CL",3), "MB","CL","CL","CL","CL","MB","CL","CL","CL","CL","MB","MB","CL","CL","MB","CL","CL","CL","CL","MB","CL","CL","CL","MB","MB","MB","CL","CL","CL","MB","MB","CL","CL","CL","MB","CL","CL","MB","CL","CL","CL","CL","MB","MB","MB","MB","CL","GR","MB","MB","CL","MB","MB","MB","GR","MB","MB","MB","GR","AG","GR","MB","GR","CL","CL","MB","MB","MB","CL","MB","CL","MB","CL","CL","CL","CL","MB","CL","AG","GR","CL","MB")
-data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mean.len.EUGW, mean.len.dog)
-colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog")
+data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mean.len.EUGW, mean.len.dog, q)
+colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog", "Q_NAGW", "Q_EUGW", "Q_dog")
 write.table(data, file = "MW-tracts.summary.tsv", sep = "\t", quote = F, row.names = F)
 ```
 
