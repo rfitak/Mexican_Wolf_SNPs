@@ -163,7 +163,215 @@ data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mea
 colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog", "Q_NAGW", "Q_EUGW", "Q_dog")
 write.table(data, file = "MW-tracts.summary.tsv", sep = "\t", quote = F, row.names = F)
 ```
+### Next we will plot the overall proportion of dog ancestry per chromosome in each population
+```R
+# Load data files
+bed = read.table("tracts.bed", header = F, sep = "\t")
+fam = read.table("MW.fam", sep = " ", header = F)
+chr = scan("chr.lengths")
 
+# Set population names
+pops = c("CL", "CL", "MB", rep("CL",3), "MB","CL","CL","CL","CL","MB","CL","CL","CL","CL","MB","MB","CL","CL","MB","CL","CL","CL","CL","MB","CL","CL","CL","MB","MB","MB","CL","CL","CL","MB","MB","CL","CL","CL","MB","CL","CL","MB","CL","CL","CL","CL","MB","MB","MB","MB","CL","GR","MB","MB","CL","MB","MB","MB","GR","MB","MB","MB","GR","AG","GR","MB","GR","CL","CL","MB","MB","MB","CL","MB","CL","MB","CL","CL","CL","CL","MB","CL","AG","GR","CL","MB")
+
+# Setup empty result data frame
+dog.prop = data.frame()
+x = 1
+
+# Loop through each individual
+for (n in seq(from = 1, to = 175, by = 2)){
+   ind1 = paste0("Ind_", n)
+   ind2 = paste0("Ind_", n + 1)
+   frags = subset(bed, V4 == ind1 | V4 == ind2)
+   frags.dog = subset(frags, V5 == "2")
+   frags.dog = cbind(frags.dog, len = frags.dog[,3] - frags.dog[,2])
+   props = aggregate(frags.dog$len, list(frags.dog$V1), sum)
+   for (c in 1:38){
+      if (any(props$Group.1 == c)) dog.prop[x, c] = props[which(props$Group.1 == c),2] / (2 * chr[c])
+      else dog.prop[x, c] = 0
+   }
+   x = x + 1
+}
+
+# Format final data file
+data = cbind(fam, pops, dog.prop)
+colnames(data) = c("FID", "IID", "POP", paste0("chr",1:38))
+
+# Write output data
+write.table(data, file = "Dog-ancestry-by-chr.tsv", sep = "\t", quote = F, row.names = F)
+
+# Plot in ggplot
+library(reshape)
+library(ggplot2)
+
+# Prep data table
+data = data[,3:ncol(data)]
+data = melt(data)
+data2 = summarySE(data, measurevar="value", groupvars=c("POP","variable"))
+data2$variable = as.factor(data2$variable)
+
+# Subset data by population
+AG.data = subset(data2, POP == "AG")
+GR.data = subset(data2, POP == "GR")
+MB.data = subset(data2, POP == "MB")
+CL.data = subset(data2, POP == "CL")
+
+# Create X-axis labels
+lab=c(1,rep("",3),5,rep("",4), 10, rep("",4), 15,rep("",4), 20, rep("",4), 25, rep("",4), 30, rep("",4), 35, rep("",3), "Total")
+
+# Build Plots
+AG.plot = ggplot(AG.data, aes(x=variable, y=value)) + 
+    geom_bar(position=position_dodge(), stat="identity", fill="#d40000") +
+    geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.2, position=position_dodge(.9)) + 
+    coord_cartesian(ylim=c(0,0.55)) + theme_bw() + 
+    theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) +
+    scale_y_continuous(breaks=c(0,0.15,0.25,0.35,0.45,0.55), labels= c(0,0.15,0.25,0.35,0.45,0.55)) +
+    scale_x_discrete(labels=lab) +
+    theme(axis.text.x=element_text(size=12), axis.text.y=element_text(size=12)) +
+    xlab("Chromosome")+ylab("Proportion dog assignment") + 
+    theme(legend.position="none")
+GR.plot = ggplot(GR.data, aes(x=variable, y=value)) + 
+    geom_bar(position=position_dodge(), stat="identity", fill="#009E73") +
+    geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.2, position=position_dodge(.9)) + 
+    coord_cartesian(ylim=c(0,0.55)) + theme_bw() + 
+    theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) +
+    scale_y_continuous(breaks=c(0,0.15,0.25,0.35,0.45,0.55), labels= c(0,0.15,0.25,0.35,0.45,0.55)) +
+    scale_x_discrete(labels=lab) +
+    theme(axis.text.x=element_text(size=12), axis.text.y=element_text(size=12)) +
+    xlab("Chromosome")+ylab("Proportion dog assignment") + 
+    theme(legend.position="none")
+MB.plot = ggplot(MB.data, aes(x=variable, y=value)) + 
+    geom_bar(position=position_dodge(), stat="identity", fill="#3771c8") +
+    geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.2, position=position_dodge(.9)) + 
+    coord_cartesian(ylim=c(0,0.55)) + theme_bw() + 
+    theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) +
+    scale_y_continuous(breaks=c(0,0.15,0.25,0.35,0.45,0.55), labels= c(0,0.15,0.25,0.35,0.45,0.55)) +
+    scale_x_discrete(labels=lab) +
+    theme(axis.text.x=element_text(size=12), axis.text.y=element_text(size=12)) +
+    xlab("Chromosome")+ylab("Proportion dog assignment") + 
+    theme(legend.position="none")
+CL.plot = ggplot(CL.data, aes(x=variable, y=value)) + 
+    geom_bar(position=position_dodge(), stat="identity", fill="#E69F00") +
+    geom_errorbar(aes(ymin=value-se, ymax=value+se), width=.2, position=position_dodge(.9)) + 
+    coord_cartesian(ylim=c(0,0.55)) + theme_bw() + 
+    theme(panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.line = element_line(colour = "black")) +
+    scale_y_continuous(breaks=c(0,0.15,0.25,0.35,0.45,0.55), labels= c(0,0.15,0.25,0.35,0.45,0.55)) +
+    scale_x_discrete(labels=lab) +
+    theme(axis.text.x=element_text(size=12), axis.text.y=element_text(size=12)) +
+    xlab("Chromosome")+ylab("Proportion dog assignment") + 
+    theme(legend.position="none")
+
+# Write all plots to file
+pdf("barplots.pdf", width=7, height=10)
+multiplot(MB.plot, GR.plot, AG.plot, CL.plot, cols=1)
+dev.off()
+```
+## Here are the extra summarySE and multiplot functions, load if needed.
+```R
+#############################################################
+################# Multiple plot function ####################
+#############################################################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+#############################################################
+################### SummarySE function ######################
+#############################################################
+## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
+##   data: a data frame.
+##   measurevar: the name of a column that contains the variable to be summariezed
+##   groupvars: a vector containing names of columns that contain grouping variables
+##   na.rm: a boolean that indicates whether to ignore NA's
+##   conf.interval: the percent range of the confidence interval (default is 95%)
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+    library(plyr)
+
+    # New version of length which can handle NA's: if na.rm==T, don't count them
+    length2 <- function (x, na.rm=FALSE) {
+        if (na.rm) sum(!is.na(x))
+        else       length(x)
+    }
+
+    # This does the summary. For each group's data frame, return a vector with
+    # N, mean, and sd
+    datac <- ddply(data, groupvars, .drop=.drop,
+      .fun = function(xx, col) {
+        c(N    = length2(xx[[col]], na.rm=na.rm),
+          mean = mean   (xx[[col]], na.rm=na.rm),
+          sd   = sd     (xx[[col]], na.rm=na.rm)
+        )
+      },
+      measurevar
+    )
+
+    # Rename the "mean" column    
+    datac <- rename(datac, c("mean" = measurevar))
+
+    datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+
+    # Confidence interval multiplier for standard error
+    # Calculate t-statistic for confidence interval: 
+    # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+    ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+    datac$ci <- datac$se * ciMult
+
+    return(datac)
+}
+```
 ### Next we can load the above table when needed and plot the output
 ```R
 library(reshape)
