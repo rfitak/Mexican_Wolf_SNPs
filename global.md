@@ -280,42 +280,48 @@ mb = subset(a, V1 == "MB")
 gr = subset(a, V1 == "GR")
 ar = subset(a, V1 == "AR")
 x = subset(a, V1 == "X")
+EUGW = c("EURO","WO_LUPA")
+NAGW = c("MB","GR","AR","X","WO_BC","WO_INTAK","WO_WO","WO_MN","WO_ID","WO_SEAK","WO_MAT")
 wolves = c("EURO","MB","GR","AR","X","WO_LUPA","WO_BC","WO_INTAK","WO_WO","WO_MN","WO_ID","WO_SEAK","WO_MAT")
 dogs = c("MIXED","PDL","BET","BGL","BMD","BOC","BOT","BRS","COS","DAC","DOB","EBD","ELK","EST","EUR","FSP","GOS","GRE","GRY","GSH","GSL","HUS","IRW","JRT","LRE","NFD","NSD","RTW","SCI","SHP","STP","TYO","WEI")
 
 # Separate by parental population pairs (ww = wolf x wolf, dog = dog x dog, dw = dog x wolf | wolf x dog)
 mb.ww = mb[mb$V2 %in% wolves & mb$V3 %in% wolves,]
 mb.dog = mb[mb$V2 %in% dogs & mb$V3 %in% dogs,]
-mb.dw = rbind(mb[mb$V2 %in% dogs & mb$V3 %in% wolves,], mb[mb$V2 %in% wolves & mb$V3 %in% dogs,])
+mb.dw1 = rbind(mb[mb$V2 %in% dogs & mb$V3 %in% EUGW,], mb[mb$V2 %in% EUGW & mb$V3 %in% dogs,])
+mb.dw2 = rbind(mb[mb$V2 %in% dogs & mb$V3 %in% NAGW,], mb[mb$V2 %in% NAGW & mb$V3 %in% dogs,])
 
 ar.ww = ar[ar$V2 %in% wolves & ar$V3 %in% wolves,]
 ar.dog = ar[ar$V2 %in% dogs & ar$V3 %in% dogs,]
-ar.dw = rbind(ar[ar$V2 %in% dogs & ar$V3 %in% wolves,], ar[ar$V2 %in% wolves & ar$V3 %in% dogs,])
+ar.dw1 = rbind(ar[ar$V2 %in% dogs & ar$V3 %in% EUGW,], ar[ar$V2 %in% EUGW & ar$V3 %in% dogs,])
+ar.dw2 = rbind(ar[ar$V2 %in% dogs & ar$V3 %in% NAGW,], ar[ar$V2 %in% NAGW & ar$V3 %in% dogs,])
 
 gr.ww = gr[gr$V2 %in% wolves & gr$V3 %in% wolves,]
 gr.dog = gr[gr$V2 %in% dogs & gr$V3 %in% dogs,]
-gr.dw = rbind(gr[gr$V2 %in% dogs & gr$V3 %in% wolves,], gr[gr$V2 %in% wolves & gr$V3 %in% dogs,])
+gr.dw1 = rbind(gr[gr$V2 %in% dogs & gr$V3 %in% EUGW,], gr[gr$V2 %in% EUGW & gr$V3 %in% dogs,])
+gr.dw2 = rbind(gr[gr$V2 %in% dogs & gr$V3 %in% NAGW,], gr[gr$V2 %in% NAGW & gr$V3 %in% dogs,])
 
 x.ww = x[x$V2 %in% wolves & x$V3 %in% wolves,]
 x.dog = x[x$V2 %in% dogs & x$V3 %in% dogs,]
-x.dw = rbind(x[x$V2 %in% dogs & x$V3 %in% wolves,], x[x$V2 %in% wolves & x$V3 %in% dogs,])
+x.dw1 = rbind(x[x$V2 %in% dogs & x$V3 %in% EUGW,], x[x$V2 %in% EUGW & x$V3 %in% dogs,])
+x.dw2 = rbind(x[x$V2 %in% dogs & x$V3 %in% NAGW,], x[x$V2 %in% NAGW & x$V3 %in% dogs,])
 
 # Build bars for barplot
-bars = list(mb.ww$V6, mb.dog$V6, mb.dw$V6, ar.ww$V6, ar.dog$V6, ar.dw$V6, gr.ww$V6, gr.dog$V6, gr.dw$V6, x.ww$V6,x.dog$V6, x.dw$V6)
+bars = list(mb.ww$V6, mb.dog$V6, mb.dw1$V6, mb.dw2$V6, ar.ww$V6, ar.dog$V6, ar.dw1$V6, ar.dw2$V6, gr.ww$V6, gr.dog$V6, gr.dw1$V6, gr.dw2$V6, x.ww$V6,x.dog$V6, x.dw1$V6, x.dw1$V6)
 
 # Reorder bars
-bars = bars[c(1, 4, 7, 10, 2, 5, 8, 11, 3, 7, 9, 12)]
+bars = bars[c(3, 7, 11, 4, 8, 12, 2, 6, 10, 1, 5, 9, 13)]
 
 # Setup colors
 colors = c("#3771c8", "#d40000", "green", "darkgray")
-colors = rev(colors[c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4)])
+colors = rev(colors[c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 4)])
 
 # Build plot
 plot.new()
-plot.window(xlim = c(-42, 181), ylim = c(1,12))
+plot.window(xlim = c(-42, 181), ylim = c(1,13))
 boxplot(rev(bars), horizontal = T, col = colors, add = T, border = T)
 abline(v = 0, lwd = 2, lty = "dashed", col = "black")
-abline(h = c(4.5, 8.5), lwd = 1, lty = 1, col = "black")
+abline(h = c(4.5, 7.5, 10.5), lwd = 1, lty = 1, col = "black")
 legend("topright", legend = c("MB", "AG", "GR", "CL"), col = rev(colors), pch = 15)
 title(xlab = "Z-score", ylab = "Population")
 dev.copy(pdf, "zscores.pdf")
