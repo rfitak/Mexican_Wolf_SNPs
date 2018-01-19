@@ -163,6 +163,44 @@ data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mea
 colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog", "Q_NAGW", "Q_EUGW", "Q_dog")
 write.table(data, file = "MW-tracts.summary.tsv", sep = "\t", quote = F, row.names = F)
 ```
+### Next we can load the tab-delimited table S1 from the study and plot the distribution of dog fragments.
+```R
+library("Rgraphviz")
+library(scales)
+
+# Read in pedigree data from table S1
+a=read.table("TableS1.tsv", header=T, sep = "\t")
+
+# Rescale data so pie-charts are circular
+new = rescale(a$MEAN_LENGTH_dog, to = c(min(a$NUM_DOG), max(a$NUM_DOG)))
+
+# Begin Plot
+pdf("Dog-segments.pdf")
+plot.new()
+plot.window(ylim=c(min(new),max(new)),xlim=c(min(a$NUM_DOG), max(a$NUM_DOG)))
+box()
+lab = rescale(c(new, 60,70,80,90,100), to = c(min(a$MEAN_LENGTH_dog), max(a$MEAN_LENGTH_dog)))[89:93]
+axis(2,las=1, labels = c(3.4, 3.9, 4.3, 4.8, 5.3), at = c(60, 70, 80, 90, 100), cex.axis=1.2)
+axis(1,cex.axis=1.2)
+colors=c("#3771c8","#d40000","green")
+for (g in 1:nrow(a)){
+   pie=c(a[g,7],a[g,8],a[g,9])
+   if (pie[1]==1){
+      points(a[g,16],new[g], col="black", bg="#3771c8",pch=21, cex=2)
+   } else if (pie[2]==1){
+      points(a[g,16],new[g], col="black", bg="#d40000",pch=21,cex=2)
+   } else if (pie[3]==1){
+      points(a[g,16],new[g], col="black", bg="green",pch=21, cex=2)
+   } else {
+      pie.col=which(pie>0)
+      pie=pie[pie>0]
+      pieGlyph(pie, a[g,16], new[g], col=colors[pie.col], edges=200,radius = 0.75, labels=NA, border=T)
+   }
+}
+title(xlab="Number of admixed segments", ylab="Mean length (Megabases)", cex.lab = 1.3)
+dev.off()
+```
+
 ### Next we will plot the overall proportion of dog ancestry per chromosome in each population
 ```R
 # Load data files
@@ -372,20 +410,6 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
     return(datac)
 }
 ```
-### Next we can load the above table when needed and plot the output
-```R
-library(reshape)
-library(ggplot2)
-library("Rgraphviz")
-library(scales)
-
-```
-
-
-
-
-
-
 
 # Old BED-maker code
 ```bash
