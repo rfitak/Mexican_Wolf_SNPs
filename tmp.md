@@ -111,9 +111,59 @@ for c in {1..38}
    done
    cd ..
 done
+
+# Merge results together from all chromosomes
+cat tracts.bed.{1..38} > tracts.bed
+rm -rf tracts.bed.{1..38}
 ```
 
+## Visualizing the results
 
+First, we create a summary table of the number and length of tracts from the parental populations in each individual
+```R
+# Read in data files
+bed = read.table("tracts.bed", header = F, sep = "\t")
+fam = read.table("MW.fam", sep = " ", header = F)
+chr = scan("chr.lengths")
+
+# Setup empty vectors to store results
+counts.NAGW = vector()
+counts.EUGW = vector()
+counts.dog = vector()
+mean.len.NAGW = vector()
+mean.len.EUGW = vector()
+mean.len.dog = vector()
+q = list()
+c = 1
+
+# Loop through each individual
+for (n in seq(from = 1, to = 175, by = 2)){
+   ind1 = paste0("Ind_", n)
+   ind2 = paste0("Ind_", n + 1)
+   frags = subset(bed, V4 == ind1 | V4 == ind2)
+   frags.NAGW = subset(frags, V5 == "0")
+   frags.EUGW = subset(frags, V5 == "1")
+   frags.dog = subset(frags, V5 == "2")
+   counts.NAGW = c(counts.NAGW, nrow(frags.NAGW))
+   counts.EUGW = c(counts.EUGW, nrow(frags.EUGW))
+   counts.dog = c(counts.dog, nrow(frags.dog))
+   mean.len.NAGW = c(mean.len.NAGW, mean(frags.NAGW[,3] - frags.NAGW[,2]))
+   mean.len.EUGW = c(mean.len.EUGW, mean(frags.EUGW[,3] - frags.EUGW[,2]))
+   mean.len.dog = c(mean.len.dog, mean(frags.dog[,3] - frags.dog[,2]))
+   q.NAGW = sum(frags.NAGW[,3] - frags.NAGW[,2]) / sum(chr)
+   q.EUGW = sum(frags.EUGW[,3] - frags.EUGW[,2]) / sum(chr)
+   q.dog = sum(frags.dog[,3] - frags.dog[,2]) / sum(chr)
+   q[[c]] = c(q.NAGW, q.EUGW, q.dog)
+   c = c + 1
+}
+
+# Make summary data table
+pops = c("CL", "CL", "MB", rep("CL",3), "MB","CL","CL","CL","CL","MB","CL","CL","CL","CL","MB","MB","CL","CL","MB","CL","CL","CL","CL","MB","CL","CL","CL","MB","MB","MB","CL","CL","CL","MB","MB","CL","CL","CL","MB","CL","CL","MB","CL","CL","CL","CL","MB","MB","MB","MB","CL","GR","MB","MB","CL","MB","MB","MB","GR","MB","MB","MB","GR","AG","GR","MB","GR","CL","CL","MB","MB","MB","CL","MB","CL","MB","CL","CL","CL","CL","MB","CL","AG","GR","CL","MB")
+data = cbind(fam, pops, counts.NAGW, counts.EUGW, counts.dog, mean.len.NAGW, mean.len.EUGW, mean.len.dog)
+colnames(data) = c("FID", "IID", "POP", "NUM_NAGW", "NUM_EUGW", "NUM_DOG", "MEAN_LENGTH_NAGW", "MEAN_LENGTH_EUGW", "MEAN_LENGTH_dog")
+write.table(data, file = "MW-tracts.summary.tsv", sep = "\t", quote = F, row.names = F)
+
+```
 
 
 
