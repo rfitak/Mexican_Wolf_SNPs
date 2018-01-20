@@ -445,7 +445,8 @@ done
 Now we can paint the chromosomes for each individual.
 ```R
 # Setup the colors
-colors = c("white", "gray", "black")
+#colors = c("white", "gray", "black")
+colors = c("#ffff99", "#fdc086", "#386cb0")
 
 # Load data
 bed = read.table("out.bed", sep = "\t", header = F, colClasses = c(rep("integer", 3), rep("character", 2)))
