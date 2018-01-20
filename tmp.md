@@ -411,7 +411,8 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 }
 ```
 
-# Old BED-maker code
+## Finally, painting the chromosomes
+We start by making a bed file in a slightly different way from the LAMPLD-converted output
 ```bash
 for c in {1..38}
    do
@@ -439,4 +440,93 @@ for c in {1..38}
       echo "Finished chr $c ind $i"
    done
 done
+```
+
+Now we can paint the chromosomes for each individual.
+```R
+# Setup the colors
+colors = c("white", "gray", "black")
+
+# Load data
+bed = read.table("out.bed", sep = "\t", header = F, colClasses = c(rep("integer", 3), rep("character", 2)))
+fam = read.table("MW.fam", sep = " ", header = F)
+chr = scan("chr.lengths")
+
+# Define the populations and individuals
+pops = c("CL", "CL", "MB", rep("CL",3), "MB","CL","CL","CL","CL","MB","CL","CL","CL","CL","MB","MB","CL","CL","MB","CL","CL","CL","CL","MB","CL","CL","CL","MB","MB","MB","CL","CL","CL","MB","MB","CL","CL","CL","MB","CL","CL","MB","CL","CL","CL","CL","MB","MB","MB","MB","CL","GR","MB","MB","CL","MB","MB","MB","GR","MB","MB","MB","GR","AG","GR","MB","GR","CL","CL","MB","MB","MB","CL","MB","CL","MB","CL","CL","CL","CL","MB","CL","AG","GR","CL","MB")
+
+ind = cbind(as.character(fam$V2), pops)
+
+# Plot for each indvidual
+for (w in 1:nrow(ind)){
+   wolf = ind[w,1]
+   pdf(paste0("INDIVIDUAL_PLOTS/", ind[w,2], "_", wolf, ".pdf"))
+   par(mar=c(2,2,1,1))
+   plot.new()
+   plot.window(xlim = c(0,max(chr)), ylim = c(0,76), xaxs="i", yaxs="i")
+   axis(1, at=10000000*c(0,2,4,6,8,10,12), labels=c(0,2,4,6,8,10,12))
+   lab=c(1,rep("",3),5,rep("",4), 10, rep("",4), 15,rep("",4), 20, rep("",4), 25, rep("",4), 30, rep("",4), 35, rep("",3))
+   axis(2, las=1, labels=lab, at = seq(from = 1, to = 75, by = 2))
+   x = c(0,0, rep(chr[38:1], each = 2))
+   y = c(0,76,76, 2 * rep(37:1,each = 2),0)
+   polygon(x,y,border = "black", lwd = 0.5, col = colors[1])
+   #i1 = paste0("Ind_",2 * w - 1)
+   #i2 = paste0("Ind_",2 * w)
+   bed.wolf = subset(bed, V4 == paste0("Ind_", w))
+
+bed11 = bed.wolf[bed.wolf$V5 == "11",]
+for (r in 1:nrow(bed11)){
+   xr = c(bed11[r,2], bed11[r,2], bed11[r,3], bed11[r,3])
+   yr = c((2 * bed11[r,1] - 2), (2 * bed11[r,1]), (2 * bed11[r,1]), (2 * bed11[r,1] - 2))
+   polygon(xr, yr, border=NA, col=colors[2])
+}
+
+bed01 = bed.wolf[bed.wolf$V5 == "01",]
+for (r in 1:nrow(bed01)){
+   xr = c(bed01[r,2], bed01[r,2], bed01[r,3], bed01[r,3])
+   yr = c((2 * bed01[r,1] - 2), (2 * bed01[r,1] - 1), (2 * bed01[r,1] - 1), (2 * bed01[r,1] - 2))
+   polygon(xr, yr, border=NA, col=colors[2])
+}
+
+bed22 = bed.wolf[bed.wolf$V5 == "22",]
+for (r in 1:nrow(bed22)){
+   xr = c(bed22[r,2], bed22[r,2], bed22[r,3], bed22[r,3])
+   yr = c((2 * bed22[r,1] - 2), (2 * bed22[r,1]), (2 * bed22[r,1]), (2 * bed22[r,1] - 2))
+   polygon(xr, yr, border=NA, col=colors[3])
+}
+
+bed02 = bed.wolf[bed.wolf$V5 == "02",]
+for (r in 1:nrow(bed02)){
+   xr = c(bed02[r,2], bed02[r,2], bed02[r,3], bed02[r,3])
+   yr = c((2 * bed02[r,1] - 2), (2 * bed02[r,1] - 1), (2 * bed02[r,1] - 1), (2 * bed02[r,1] - 2))
+   polygon(xr, yr, border=NA, col=colors[3])
+}
+
+bed12 = bed.wolf[bed.wolf$V5 == "12",]
+for (r in 1:nrow(bed12)){
+   xr = c(bed12[r,2], bed12[r,2], bed12[r,3], bed12[r,3])
+   yr = c((2 * bed12[r,1] - 2), (2 * bed12[r,1] - 1), (2 * bed12[r,1] - 1), (2 * bed12[r,1] - 2))
+   polygon(xr, yr, border=NA, col=colors[3])
+}
+
+bed12 = bed.wolf[bed.wolf$V5 == "12",]
+for (r in 1:nrow(bed12)){
+   xr = c(bed12[r,2], bed12[r,2], bed12[r,3], bed12[r,3])
+   yr = c((2 * bed12[r,1] - 1), (2 * bed12[r,1]), (2 * bed12[r,1]), (2 * bed12[r,1] - 1))
+   polygon(xr, yr, border=NA, col=colors[2])
+}
+
+segments(rep(0,75),1:75,rep(chr, each = 2)[1:75],1:75, lwd=0.5, col="black")
+   wolf = sub("NK108296", "1033", wolf)
+   wolf = sub("NK108404", "1139", wolf)
+   wolf = sub("NK108445", "921", wolf)
+   wolf = sub("NK108446", "1043", wolf)
+   wolf = sub("NK226615", "1052", wolf)
+   wolf = sub("NK226616", "1215", wolf)
+   wolf = paste0(ind[w,2], "_", wolf)
+text(90000000, 66, sub("_", " ", wolf), cex = 4)
+dev.off()
+print(paste0("Finished wolf ", wolf))
+}
+
 ```
