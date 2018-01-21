@@ -289,10 +289,10 @@ HWE.Wigginton = function(x){
 # Remove SNPs with MAF<0.05 in dogs to mimic ascertainment bias
 data.dog = data[775:2042,]
 freq = colSums(data.dog) / nrow(data.dog)
-keep.MAF = which(freq > 0.05 & freq < 0.95)
+keep.MAF = which(freq > 0.1 & freq < 0.9)
 print(paste0("A total of ",
    ncol(data) - length(keep.MAF),
-   " SNPs were removed (MAF < 0.05 in dogs) and ",
+   " SNPs were removed (MAF < 0.1 in dogs) and ",
    length(keep.MAF),
    " remain."))
 data.MAF = data[, keep.MAF, with = FALSE]
@@ -363,7 +363,8 @@ for c in {1..38}; do
       transpose --fsep " " -t --limit 10000x10000 chr${c}_${i}.tped | tail -n +5 | sed "s/ //g" > tmp
       
       # Get the gray wolf (GW) and DOG haplotypes
-      head -774 tmp | tail -n 598 > chr${c}_${i}_gw.hap
+      head -636 tmp | tail -n 460 > chr${c}_${i}_nagw.hap
+      head -774 tmp | tail -n 138 > chr${c}_${i}_eugw.hap
       tail -n 1268 tmp > chr${c}_${i}_dog.hap
       
       # Get the map file (first 4 columns of tped format) and list of SNPs
@@ -380,7 +381,8 @@ for c in {1..38}; do
          chr${c}_${i}.map \
          MW_${i}.ped \
          chr${c}_${i}.snps \
-         chr${c}_${i}_gw.hap \
+         chr${c}_${i}_nagw.hap \
+         chr${c}_${i}_eugw.hap \
          chr${c}_${i}_dog.hap \
          LAMPLD_${i}
       
@@ -428,17 +430,19 @@ for c in {1..38}; do
    # Loop through each replicate
    for i in {1..10}; do
       cd LAMPLD_${i}
-      $bin/unolanc2way \
+      $bin/unolanc \
+         3 \
          100 \
          50 \
          chr.pos \
          pop1.hap \
          pop2.hap \
+         pop3.hap \
          genofile.gen \
          chr${c}_lampld.out
       $bin/convertLAMPLDout.pl chr${c}_lampld.out chr${c}_lampld.converted.out
-      $bin/standardizeOutput.pl lampld 2 chr${c}_lampld.converted.out chr${c}_ancestry.standardized.txt
-      $bin/averageAncestry.pl phased 2 chr${c}_ancestry.standardized.txt chr${c}_avg.ancestry.txt  
+      $bin/standardizeOutput.pl lampld 3 chr${c}_lampld.converted.out chr${c}_ancestry.standardized.txt
+      $bin/averageAncestry.pl phased 3 chr${c}_ancestry.standardized.txt chr${c}_avg.ancestry.txt  
    
       # Move up a folder
       cd ..
