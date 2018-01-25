@@ -515,11 +515,11 @@ for (i in 1:length(files)){
    # Load bed file
    bed = read.table(files[i], sep = "\t", header = F, colClasses = c("numeric", "numeric", "numeric", "character", "character"))
 
-   # Now, we only want fragments that have dog ancestry (01 or 11)
-   bed.dog = subset(bed, V5 == "01" | V5 == "11")
+   # Now, we only want fragments that have dog ancestry (02, 12, or 22)
+   bed.dog = subset(bed, V5 == "02" | V5 == "12" | V5 == "22")
 
    # Now, we double any fragment that is 11, since this means both chromosomes are dog
-   bed.dog = rbind(bed.dog, subset(bed, V5 == "11"))
+   bed.dog = rbind(bed.dog, subset(bed, V5 == "22"))
 
    # Calculate the fragments lengths in megabases
    frags = (bed.dog$V3 - bed.dog$V2) / 1000000
@@ -539,11 +539,12 @@ data$Scheme = as.factor(data$Scheme)
 
 # Repeat for the observed set of Mexican wolves
    MW.data = read.table("MW.out.bed", sep="\t", header=F, colClasses = c(rep("numeric",3), rep("character", 2)))
+   
    # Now, we only want fragments that have dog ancestry (01 or 11)
-   MW.dog = subset(MW.data, V5 == "01" | V5 == "11")
+   MW.dog = subset(MW.data, V5 == "02" | V5 == "12" | V5 == "22")
 
    # Now, we double any fragment that is 11, since this means both chromosomes are dog
-   MW.dog = rbind(MW.dog, subset(MW.data, V5 == "11"))
+   MW.dog = rbind(MW.dog, subset(MW.data, V5 == "22"))
 
    # Calculate the fragments lengths in megabases
    frags = (MW.dog$V3 - MW.dog$V2) / 1000000
