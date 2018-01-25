@@ -642,7 +642,7 @@ bp3 = bp3 + theme(axis.text = element_text(size = 12), axis.title = element_text
 bp3
 ```
 ### Box Plot 1 (BP1)
-![bp1](./Images/bp1.gif)
+![bp1](./Images/bp1.jpg)
 
 ### Box Plot 2 (BP2)
-![bp2](./Images/bp2.gif)  
+![bp2](./Images/bp2.jpg)  
