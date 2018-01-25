@@ -641,3 +641,8 @@ bp3 = bp3 + ylab("Proportion Dog Ancestry")
 bp3 = bp3 + theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14), legend.position="none")
 bp3
 ```
+### Box Plot 1 (BP1)
+![bp1](./Images/bp1.gif)
+
+### Box Plot 2 (BP2)
+![bp2](./Images/bp2.gif)  
