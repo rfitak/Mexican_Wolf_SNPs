@@ -1,5 +1,12 @@
 # Mexican_Wolf_SNPs
-The repository contains code for the analysis of the Mexican wolf SNP data.  Please follow the links below to get the code and associated descriptions for various analyses and data processing.  The results of this study have been published in Fitak et al. (in review) *Molecular Ecology*
+The repository contains code for the analysis of the Mexican wolf SNP data.  Please follow the links below to get the code and associated descriptions for various analyses and data processing.  The results of this study have been published in:  
+
+Fitak RR , Rinkevich S, and Culver M. (2018) Genome-wide analyses of SNPs is consistent with no domestic dog ancestry in the endangered Mexican wolf (*Canis lupus baileyi*). *Journal of Heredity*. **109**(4): 373-383. doi: [10.1093/jhered/esy009](https://doi.org/10.1093/jhered/esy009)  
+
+Additional data can be found in Dryad:  
+
+Fitak RR, Rinkevich SE, Culver M (2018) Data from: Genome-wide analysis of SNPs is consistent with no domestic dog ancestry in the endangered Mexican wolf (*Canis lupus baileyi*). Dryad Digital Repository. [https://doi.org/10.5061/dryad.g68k008](https://doi.org/10.5061/dryad.g68k008)  
+
 Some ancillary data files and custom scripts are available in the [Data](./Data) folder.
 
 1. [Analyzing the initial Mexican wolf genotypes](./MW-data-processing.md)
