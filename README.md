@@ -1,4 +1,4 @@
-# Mexican_Wolf_SNPs
+# Identification of domestic dog ancestry in Mexican wolves (*Canis lupus baileyi*)
 The repository contains code for the analysis of the Mexican wolf SNP data.  Please follow the links below to get the code and associated descriptions for various analyses and data processing.  The results of this study have been published in:  
 
 Fitak RR , Rinkevich S, and Culver M. (2018) Genome-wide analyses of SNPs is consistent with no domestic dog ancestry in the endangered Mexican wolf (*Canis lupus baileyi*). *Journal of Heredity*. **109**(4): 373-383. doi: [10.1093/jhered/esy009](https://doi.org/10.1093/jhered/esy009)  
